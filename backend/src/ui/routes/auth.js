@@ -7,6 +7,7 @@ const { getDatabase, queryOne, execute } = require('../../infra/database/db');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dotchflow_secret';
+const MAX_USERS = parseInt(process.env.MAX_USERS) || 50;
 
 // POST /auth/register
 router.post(
@@ -22,6 +23,12 @@ router.post(
     try {
       const db = await getDatabase();
       const { email, password } = req.body;
+
+      // Check user limit
+      const userCount = queryOne(db, 'SELECT COUNT(*) as count FROM users');
+      if (userCount && userCount.count >= MAX_USERS) {
+        return res.status(403).json({ error: `Limite máximo de usuários (${MAX_USERS}) atingido` });
+      }
 
       const existing = queryOne(db, 'SELECT id FROM users WHERE email = ?', [email]);
       if (existing) return res.status(409).json({ error: 'Email já cadastrado' });

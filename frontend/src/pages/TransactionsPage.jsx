@@ -1,5 +1,6 @@
 // src/pages/TransactionsPage.jsx
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Trash2, Edit3, X, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
@@ -36,7 +37,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 modal-backdrop">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
@@ -142,6 +143,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
 }
 
 export default function TransactionsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -149,6 +151,17 @@ export default function TransactionsPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const { refreshUser } = useAuthStore();
+
+  // Handle URL params to open modal with pre-selected type
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'income' || type === 'expense') {
+      setEditTx({ type }); // Will set the modal type
+      setShowModal(true);
+      // Clear the URL param after opening modal
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   const load = useCallback(async () => {
     setLoading(true);

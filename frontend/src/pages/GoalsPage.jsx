@@ -90,7 +90,7 @@ function CreateGoalModal({ onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 modal-backdrop">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
@@ -184,7 +184,7 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL }) {
   const quickAmounts = [50, 100, 200, 500];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-4 modal-backdrop">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">

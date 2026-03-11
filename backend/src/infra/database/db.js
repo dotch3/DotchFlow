@@ -126,6 +126,15 @@ function migrate(db) {
     );
   `);
 
+  // Metadata table for app settings and tracking
+  db.run(`
+    CREATE TABLE IF NOT EXISTS metadata (
+      key TEXT PRIMARY KEY,
+      value TEXT,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+  `);
+
   // Seed store items if empty
   const storeCount = db.exec('SELECT COUNT(*) as c FROM gamification_store')[0];
   if (storeCount && storeCount.values[0][0] === 0) {
@@ -167,4 +176,18 @@ function execute(db, sql, params = []) {
   };
 }
 
-module.exports = { getDatabase, persistDatabase, queryAll, queryOne, execute };
+// Helper: get metadata value
+function getMetadata(db, key) {
+  const row = queryOne(db, 'SELECT value FROM metadata WHERE key = ?', [key]);
+  return row?.value || null;
+}
+
+// Helper: set metadata value
+function setMetadata(db, key, value) {
+  db.run(
+    'INSERT OR REPLACE INTO metadata (key, value, updated_at) VALUES (?, ?, datetime("now"))',
+    [key, value]
+  );
+}
+
+module.exports = { getDatabase, persistDatabase, queryAll, queryOne, execute, getMetadata, setMetadata };

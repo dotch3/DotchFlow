@@ -1,8 +1,9 @@
 // src/pages/DashboardPage.jsx
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Flame, TrendingUp, TrendingDown, Wallet, 
-  Target, Calendar, ChevronRight, Sparkles 
+  Target, Calendar, ChevronRight, Sparkles, HelpCircle, X 
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import useAuthStore from '../store/authStore';
@@ -193,21 +194,32 @@ function ForecastChart({ forecast }) {
 }
 
 function QuickActions() {
+  const navigate = useNavigate();
+  
   return (
     <div className="grid grid-cols-3 gap-3">
-      <button className="card p-3 flex flex-col items-center gap-2 hover-lift">
+      <button 
+        className="card p-3 flex flex-col items-center gap-2 hover-lift"
+        onClick={() => navigate('/transactions?type=income')}
+      >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-accent-muted)' }}>
           <TrendingUp size={18} className="text-emerald-400" />
         </div>
         <span className="text-xs font-medium">Receita</span>
       </button>
-      <button className="card p-3 flex flex-col items-center gap-2 hover-lift">
+      <button 
+        className="card p-3 flex flex-col items-center gap-2 hover-lift"
+        onClick={() => navigate('/transactions?type=expense')}
+      >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-danger-muted)' }}>
           <TrendingDown size={18} className="text-red-400" />
         </div>
         <span className="text-xs font-medium">Despesa</span>
       </button>
-      <button className="card p-3 flex flex-col items-center gap-2 hover-lift">
+      <button 
+        className="card p-3 flex flex-col items-center gap-2 hover-lift"
+        onClick={() => navigate('/goals')}
+      >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-primary-muted)' }}>
           <Target size={18} className="text-indigo-400" />
         </div>
@@ -224,6 +236,7 @@ export default function DashboardPage() {
   const [forecast, setForecast] = useState(null);
   const [checkinLoading, setCheckinLoading] = useState(false);
   const [checkinMsg, setCheckinMsg] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -266,14 +279,88 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       {/* Welcome Section */}
-      <div className="pt-2 fade-in-up">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-          Olá, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
-        </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-          Continue assim! Você está no caminho certo.
-        </p>
+      <div className="pt-2 fade-in-up flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
+            Olá, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
+          </h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
+            Continue assim! Você está no caminho certo.
+          </p>
+        </div>
+        <button 
+          onClick={() => setShowHelp(true)}
+          className="p-2 rounded-xl hover-lift"
+          style={{ background: 'var(--color-bg-tertiary)' }}
+          title="Ajuda"
+        >
+          <HelpCircle size={20} style={{ color: 'var(--color-text-secondary)' }} />
+        </button>
       </div>
+
+      {/* Help Modal */}
+      {showHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setShowHelp(false)}>
+          <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
+                Como Funciona
+              </h2>
+              <button onClick={() => setShowHelp(false)} className="icon-btn" style={{ width: 32, height: 32 }}>
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* XP Section */}
+              <div className="p-4 rounded-xl" style={{ background: 'var(--color-primary-muted)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Flame size={18} className="text-indigo-400" />
+                  <h3 className="font-semibold text-sm">Como Ganhar XP</h3>
+                </div>
+                <ul className="text-xs space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
+                  <li>• Complete seu check-in diário: <strong>+10 XP</strong></li>
+                  <li>• Adicione uma transação: <strong>+5 XP</strong></li>
+                  <li>• Crie uma meta: <strong>+15 XP</strong></li>
+                  <li>• Alcance uma meta: <strong>+50 XP</strong></li>
+                  <li>• Mantenha sequência de dias: <strong>+2 XP/dia</strong></li>
+                </ul>
+                <p className="text-xs mt-2" style={{ color: 'var(--color-text-tertiary)' }}>
+                  A cada nível, você ganha badges exclusivos e acesso a novas funcionalidades!
+                </p>
+              </div>
+
+              {/* Store Section */}
+              <div className="p-4 rounded-xl" style={{ background: 'var(--color-accent-muted)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles size={18} className="text-emerald-400" />
+                  <h3 className="font-semibold text-sm">Loja de Recompensas</h3>
+                </div>
+                <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                  Use suas Coins (ganhas ao alcançar metas) para desbloquear recompensas exclusivas na loja:
+                </p>
+                <ul className="text-xs mt-2 space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
+                  <li>• Temas personalizados para o app</li>
+                  <li>• Badges raros de conquistas</li>
+                  <li>• Relatórios financeiros premium</li>
+                  <li>• E muito mais!</li>
+                </ul>
+              </div>
+
+              <button
+                onClick={() => { setShowHelp(false); navigate('/store'); }}
+                className="w-full py-3 rounded-xl font-semibold text-sm"
+                style={{ 
+                  background: 'linear-gradient(135deg, var(--color-primary) 0%, #8B5CF6 100%)',
+                  color: 'white'
+                }}
+              >
+                Ver Loja 🏪
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* XP Progress */}
       {gamification && (

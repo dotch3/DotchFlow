@@ -10,6 +10,7 @@ const transactionsRoutes = require('./ui/routes/transactions');
 const categoriesRoutes = require('./ui/routes/categories');
 const goalsRoutes = require('./ui/routes/goals');
 const storeRoutes = require('./ui/routes/store');
+const adminRoutes = require('./ui/routes/admin');
 const { getDatabase } = require('./infra/database/db');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/transactions', transactionsRoutes);
 app.use('/categories', categoriesRoutes);
 app.use('/goals', goalsRoutes);
 app.use('/store', storeRoutes);
+app.use('/admin', adminRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
