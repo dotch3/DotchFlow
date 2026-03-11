@@ -1,93 +1,95 @@
 # DotchFlow Backend
 
-API REST do DotchFlow - um app de finanças pessoais gamificado que transforma o controle financeiro em uma experiência divertida e motivadora.
+REST API for DotchFlow - a gamified personal finance app that turns financial control into a fun and motivating experience.
 
-## Funcionalidades
+> **Note:** This is a test/learning project built for practice purposes.
 
-- **Controle de Gastos** - Registro rápido de receitas e despesas com categorias
-- **Saúde Financeira** - Análise pela regra 50-15-35 (essenciais, prioridades, lifestyle)
-- **Projeção de Saldo** - Previsão de 30 dias baseada em transações recorrentes
-- **Gamificação** - Sistema de XP, levels, coins e streak diário
-- **Metas (Sonhos)** - Organize seus objetivos financeiros
-- **Loja** - Desbloqueie itens com suas coins conquistadas
+## Features
+
+- **Expense Tracking** - Quick recording of income and expenses with categories
+- **Financial Health** - Analysis using the 50-15-35 rule (essentials, priorities, lifestyle)
+- **Balance Forecast** - 30-day projection based on recurring transactions
+- **Gamification** - XP system, levels, coins, and daily streaks
+- **Goals (Dreams)** - Organize your financial objectives
+- **Store** - Unlock items with earned coins
 
 ## Tech Stack
 
 - **Node.js** + **Express**
 - **SQLite** (sql.js)
-- **JWT** para autenticação
+- **JWT** for authentication
 
-## Instalação
+## Installation
 
 ```bash
 cd backend
 npm install
 ```
 
-## Variáveis de Ambiente
+## Environment Variables
 
-Crie um arquivo `.env`:
+Create a `.env` file:
 
 ```env
 PORT=3001
-JWT_SECRET=sua_chave_secreta_aqui
+JWT_SECRET=your_secret_key_here
 ```
 
-## Executar
+## Running
 
 ```bash
 npm run dev
 ```
 
-A API estará disponível em `http://localhost:3001`
+API will be available at `http://localhost:3001`
 
 ## Endpoints
 
-### Autenticação
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/auth/register` | Criar conta |
+### Authentication
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/auth/register` | Create account |
 | POST | `/auth/login` | Login |
-| GET | `/auth/me` | Dados do usuário |
+| GET | `/auth/me` | User data |
 
-### Gamificação
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| POST | `/gamification/checkin` | Check-in diário |
-| GET | `/gamification/status` | Status de XP, level, streak |
+### Gamification
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/gamification/checkin` | Daily check-in |
+| GET | `/gamification/status` | XP, level, streak status |
 
-### Finanças
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/finance/health` | Saúde financeira (regra 50-15-35) |
-| GET | `/finance/forecast` | Projeção de 30 dias |
+### Finance
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/finance/health` | Financial health (50-15-35 rule) |
+| GET | `/finance/forecast` | 30-day projection |
 
-### Transações
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/transactions` | Listar (filtros: category, type, date) |
-| POST | `/transactions` | Criar |
-| PUT | `/transactions/:id` | Editar |
-| DELETE | `/transactions/:id` | Excluir |
+### Transactions
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/transactions` | List (filters: category, type, date) |
+| POST | `/transactions` | Create |
+| PUT | `/transactions/:id` | Update |
+| DELETE | `/transactions/:id` | Delete |
 
-### Metas
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/goals` | Listar metas |
-| POST | `/goals` | Criar meta |
-| POST | `/goals/:id/deposit` | Depositar |
-| DELETE | `/goals/:id` | Excluir |
+### Goals
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/goals` | List goals |
+| POST | `/goals` | Create goal |
+| POST | `/goals/:id/deposit` | Deposit |
+| DELETE | `/goals/:id` | Delete |
 
-### Loja
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/store` | Listar itens |
-| POST | `/store/unlock` | Desbloquear item |
+### Store
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/store` | List items |
+| POST | `/store/unlock` | Unlock item |
 
-### Categorias
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/categories` | Listar |
-| POST | `/categories` | Criar |
-| PUT | `/categories/:id` | Editar |
-| DELETE | `/categories/:id` | Excluir |
+### Categories
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/categories` | List |
+| POST | `/categories` | Create |
+| PUT | `/categories/:id` | Update |
+| DELETE | `/categories/:id` | Delete |

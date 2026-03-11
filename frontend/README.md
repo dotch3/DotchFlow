@@ -1,56 +1,58 @@
 # DotchFlow Frontend
 
-Frontend do DotchFlow - interface gamificada para controle de finanças pessoais.
+Frontend for DotchFlow - a gamified interface for personal finance control.
 
-## Funcionalidades
+> **Note:** This is a test/learning project built for practice purposes.
 
-- **Dashboard** - Visão geral com saldo, XP, streak e gráficos
-- **Transações** - Lista de gastos com filtros e busca
-- **Metas** - Acompanhe seus objetivos financeiros
-- **Loja** - Desbloqueie itens com suas coins
-- **Perfil** - Estatísticas e conquistas
+## Features
+
+- **Dashboard** - Overview with balance, XP, streak, and charts
+- **Transactions** - Expense list with filters and search
+- **Goals** - Track your financial objectives
+- **Store** - Unlock items with your coins
+- **Profile** - Statistics and achievements
 
 ## Tech Stack
 
 - **React** + **Vite**
 - **Tailwind CSS**
-- **Recharts** para gráficos
-- **Zustand** para estado global
-- **Axios** para API
+- **Recharts** for charts
+- **Zustand** for global state
+- **Axios** for API
 
-## Instalação
+## Installation
 
 ```bash
 cd frontend
 npm install
 ```
 
-## Executar
+## Running
 
 ```bash
 npm run dev
 ```
 
-O app estará disponível em `http://localhost:5173`
+App will be available at `http://localhost:5173`
 
-## Configuração
+## Configuration
 
-O frontend espera que a API esteja rodando em `http://localhost:3001`. Para alterar, edite `src/api/client.js`:
+The frontend expects the API to be running at `http://localhost:3001`. To change this, edit `src/api/client.js`:
 
 ```javascript
 const api = axios.create({
-  baseURL: 'http://seu-servidor:3001', // altere aqui
+  baseURL: 'http://your-server:3001', // change here
   // ...
 });
 ```
 
-## Estrutura
+## Structure
 
 ```
 src/
-├── api/          # Client API
-├── components/   # Componentes reutilizáveis
-├── pages/        # Páginas do app
-├── store/        # Estado global (Zustand)
-└── index.css    # Estilos globais
+├── api/          # API client
+├── components/   # Reusable components
+├── pages/        # App pages
+├── store/        # Global state (Zustand)
+└── index.css    # Global styles
 ```
