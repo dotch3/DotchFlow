@@ -73,6 +73,58 @@ The following data is automatically created on first run:
 
 User data (transactions, goals, etc.) is created when you register via the app.
 
+### Quick Start with Seed Data
+
+For first-time setup or testing, use the combined command:
+
+```bash
+npm run dev-seed
+```
+
+This will:
+1. Delete existing database (if any)
+2. Start the server (creates fresh database with schema)
+3. Run the seed script automatically
+4. Stop the server
+
+**That's it!** You can then start the app with `npm run dev` and login with the test credentials.
+
+---
+
+### Manual Seed (if database already exists)
+
+If you already have a database and just want to add test data:
+
+```bash
+# Make sure server is NOT running
+# Then run seed:
+npm run seed
+```
+
+**⚠️ Error if user exists:** If `test@dotchflow.com` already exists, you'll see an error. To re-seed, first delete the database:
+
+```bash
+rm -f data/dotchflow.db
+npm run seed
+```
+
+---
+
+### Test User Credentials
+
+After running seed, login with:
+
+| Field | Value |
+|-------|-------|
+| Email | `test@dotchflow.com` |
+| Password | `test123` |
+| XP Points | 500 |
+| Level | 3 |
+| Coins | 250 |
+| Streak | 5 days |
+
+**Includes:** 8 categories, 15 transactions (last 30 days), 3 goals, and 2 unlocked store items.
+
 ## Endpoints
 
 ### Authentication
