@@ -35,6 +35,20 @@ npm run dev
 
 App will be available at `http://localhost:5173`
 
+## Production Build
+
+To create a production build:
+
+```bash
+npm run build
+```
+
+The build output will be in the `dist/` folder. You can preview it locally:
+
+```bash
+npm run preview
+```
+
 ## Configuration
 
 The frontend expects the API to be running at `http://localhost:3001`. To change this, edit `src/api/client.js`:

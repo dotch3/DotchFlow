@@ -43,6 +43,36 @@ npm run dev
 
 API will be available at `http://localhost:3001`
 
+## Database
+
+### Reset Database
+
+To reset the database (delete all data and start fresh):
+
+```bash
+# Stop the server first
+# Then delete the database file:
+rm -f data/dotchflow.db
+```
+
+The database will be automatically recreated on next server start.
+
+### Seed Data
+
+The following data is automatically created on first run:
+
+**Store Items (Loja):**
+| Item | Cost | Level |
+|------|------|-------|
+| 🌙 Tema Dark Premium | 100 coins | 1 |
+| 🌅 Tema Sunset | 150 coins | 3 |
+| 🔔 Notificações Inteligentes | 200 coins | 5 |
+| 👑 Avatar Dourado | 300 coins | 7 |
+| 💼 Modo Multi-Carteira | 500 coins | 10 |
+| 📊 Relatório Anual Pdf | 250 coins | 5 |
+
+User data (transactions, goals, etc.) is created when you register via the app.
+
 ## Endpoints
 
 ### Authentication
