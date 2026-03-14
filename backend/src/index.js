@@ -2,6 +2,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
 
 const authRoutes = require('./ui/routes/auth');
 const gamificationRoutes = require('./ui/routes/gamification');
@@ -16,11 +18,54 @@ const { getDatabase } = require('./infra/database/db');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.3',
+    info: {
+      title: 'DotchFlow API',
+      description: 'API RESTful para o aplicativo DotchFlow - Gerenciador financeiro pessoal com gamificação.\n\n## Autenticação\nA maioria dos endpoints requer autenticação via token JWT. Para obter o token:\n1. Faça login em `/auth/login` para receber o token\n2. Adicione o header `Authorization: Bearer <SEU_TOKEN>` em todas as requisições autenticadas',
+      version: '1.0.0',
+      contact: {
+        name: 'dotch3',
+        url: 'https://github.com/dotch3'
+      },
+      license: {
+        name: 'MIT',
+        url: 'https://opensource.org/licenses/MIT'
+      }
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001',
+        description: 'Servidor de desenvolvimento local'
+      }
+    ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [{ BearerAuth: [] }]
+  },
+  apis: ['./src/docs/openapi.yaml']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:3000'], credentials: true }));
 app.use(express.json());
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', app: 'DotchFlow API', version: '1.0.0' }));
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/api-docs.json', (req, res) => res.json(swaggerDocs));
 
 // Routes
 app.use('/auth', authRoutes);

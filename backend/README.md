@@ -33,6 +33,8 @@ Create a `.env` file:
 ```env
 PORT=3001
 JWT_SECRET=your_secret_key_here
+MAX_USERS=50
+CLEANUP_INTERVAL_DAYS=30
 ```
 
 ## Running
@@ -175,3 +177,403 @@ After running seed, login with:
 | POST | `/categories` | Create |
 | PUT | `/categories/:id` | Update |
 | DELETE | `/categories/:id` | Delete |
+
+---
+
+## API Usage Examples
+
+> **Base URL:** `http://localhost:3001`
+> 
+> Most endpoints require a JWT token. After login, include the token in the `Authorization` header:
+> ```
+> Authorization: Bearer <your_jwt_token>
+> ```
+
+### 1. Authentication
+
+#### Register a new user
+```bash
+curl -X POST http://localhost:3001/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "myPassword123",
+    "name": "John Doe"
+  }'
+```
+
+**Response:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "email": "john@example.com",
+    "name": "John Doe",
+    "level": 1,
+    "xp": 0,
+    "coins": 100,
+    "streak": 0
+  }
+}
+```
+
+#### Login
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "myPassword123"
+  }'
+```
+
+#### Get current user
+```bash
+curl -X GET http://localhost:3001/auth/me \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+---
+
+### 2. Transactions
+
+#### List all transactions (with filters)
+```bash
+# All transactions
+curl -X GET http://localhost:3001/transactions \
+  -H "Authorization: Bearer <your_jwt_token>"
+
+# Filter by type (income/expense)
+curl -X GET "http://localhost:3001/transactions?type=expense" \
+  -H "Authorization: Bearer <your_jwt_token>"
+
+# Filter by category
+curl -X GET "http://localhost:3001/transactions?categoryId=1" \
+  -H "Authorization: Bearer <your_jwt_token>"
+
+# Filter by date range
+curl -X GET "http://localhost:3001/transactions?startDate=2024-01-01&endDate=2024-01-31" \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "transactions": [
+    {
+      "id": 1,
+      "description": "Grocery shopping",
+      "amount": 150.00,
+      "type": "expense",
+      "categoryId": 1,
+      "category": "Food",
+      "date": "2024-01-15",
+      "recurring": false
+    }
+  ]
+}
+```
+
+#### Create a transaction
+```bash
+curl -X POST http://localhost:3001/transactions \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Salary",
+    "amount": 5000,
+    "type": "income",
+    "categoryId": 8,
+    "date": "2024-01-15",
+    "recurring": true,
+    "recurringType": "monthly"
+  }'
+```
+
+#### Update a transaction
+```bash
+curl -X PUT http://localhost:3001/transactions/1 \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "Updated grocery shopping",
+    "amount": 175.00
+  }'
+```
+
+#### Delete a transaction
+```bash
+curl -X DELETE http://localhost:3001/transactions/1 \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+---
+
+### 3. Categories
+
+#### List all categories
+```bash
+curl -X GET http://localhost:3001/categories \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "categories": [
+    { "id": 1, "name": "Food", "icon": "🍔", "type": "expense" },
+    { "id": 2, "name": "Transport", "icon": "🚗", "type": "expense" },
+    { "id": 8, "name": "Salary", "icon": "💰", "type": "income" }
+  ]
+}
+```
+
+#### Create a category
+```bash
+curl -X POST http://localhost:3001/categories \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Entertainment",
+    "icon": "🎬",
+    "type": "expense"
+  }'
+```
+
+---
+
+### 4. Goals (Dreams)
+
+#### List all goals
+```bash
+curl -X GET http://localhost:3001/goals \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "goals": [
+    {
+      "id": 1,
+      "name": "Emergency Fund",
+      "targetAmount": 10000,
+      "currentAmount": 2500,
+      "deadline": "2024-12-31",
+      "completed": false
+    }
+  ]
+}
+```
+
+#### Create a goal
+```bash
+curl -X POST http://localhost:3001/goals \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Vacation to Japan",
+    "targetAmount": 15000,
+    "deadline": "2025-06-01"
+  }'
+```
+
+#### Deposit towards a goal
+```bash
+curl -X POST http://localhost:3001/goals/1/deposit \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 500
+  }'
+```
+
+#### Delete a goal
+```bash
+curl -X DELETE http://localhost:3001/goals/1 \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+---
+
+### 5. Finance (Health & Forecast)
+
+#### Get financial health (50-15-35 rule)
+```bash
+curl -X GET http://localhost:3001/finance/health \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "health": {
+    "score": 85,
+    "status": "excellent",
+    "breakdown": {
+      "essentials": { "percentage": 45, "rule": 50, "status": "good" },
+      "priorities": { "percentage": 20, "rule": 15, "status": "warning" },
+      "lifestyle": { "percentage": 35, "rule": 35, "status": "excellent" }
+    },
+    "recommendations": [
+      "Consider reducing lifestyle spending by 5%"
+    ]
+  }
+}
+```
+
+#### Get 30-day forecast
+```bash
+curl -X GET http://localhost:3001/finance/forecast \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "forecast": {
+    "currentBalance": 8500,
+    "projectedEndBalance": 12300,
+    "dailyAverage": {
+      "income": 500,
+      "expense": 280
+    },
+    "projectedTransactions": [
+      { "date": "2024-02-01", "description": "Salary", "amount": 5000, "type": "income" },
+      { "date": "2024-02-05", "description": "Rent", "amount": 1500, "type": "expense" }
+    ]
+  }
+}
+```
+
+---
+
+### 6. Gamification
+
+#### Daily check-in (earn XP & coins)
+```bash
+curl -X POST http://localhost:3001/gamification/checkin \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "checkin": {
+    "success": true,
+    "streak": 5,
+    "xp": 50,
+    "coins": 25,
+    "message": "5-day streak! Keep it up!"
+  }
+}
+```
+
+#### Get XP, level, and streak status
+```bash
+curl -X GET http://localhost:3001/gamification/status \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "status": {
+    "level": 5,
+    "xp": 1250,
+    "nextLevelXp": 1500,
+    "coins": 450,
+    "streak": 5,
+    "streakBonus": 25,
+    "dailyCheckinAvailable": true
+  }
+}
+```
+
+---
+
+### 7. Store
+
+#### List all store items
+```bash
+curl -X GET http://localhost:3001/store \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+**Response:**
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Dark Premium Theme",
+      "description": "Beautiful dark mode for the app",
+      "cost": 100,
+      "levelRequired": 1,
+      "unlocked": false
+    },
+    {
+      "id": 2,
+      "name": "Golden Avatar",
+      "description": "Stand out with a golden avatar frame",
+      "cost": 300,
+      "levelRequired": 7,
+      "unlocked": true
+    }
+  ]
+}
+```
+
+#### Unlock a store item
+```bash
+curl -X POST http://localhost:3001/store/unlock \
+  -H "Authorization: Bearer <your_jwt_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "itemId": 1
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Dark Premium Theme unlocked!",
+  "newBalance": 350
+}
+```
+
+---
+
+## Interactive Documentation
+
+Full interactive API documentation is available at:
+
+**Swagger UI:** http://localhost:3001/api-docs
+
+This provides:
+- Visual interface to test all endpoints
+- Request/response examples
+- Schema documentation
+
+---
+
+## Error Responses
+
+All endpoints may return error responses:
+
+| Status | Meaning |
+|--------|---------|
+| 400 | Bad Request - Invalid input |
+| 401 | Unauthorized - Invalid or missing token |
+| 403 | Forbidden - Insufficient permissions |
+| 404 | Not Found - Resource doesn't exist |
+| 500 | Internal Server Error |
+
+**Example error response:**
+```json
+{
+  "error": "Category not found"
+}
+```

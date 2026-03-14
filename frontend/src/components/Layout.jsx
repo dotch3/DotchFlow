@@ -2,13 +2,14 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
   Home, Receipt, Target, Store, User, 
-  LogOut, Wallet, TrendingUp, Zap 
+  LogOut, Wallet, TrendingUp, Zap, Tag
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Início' },
   { path: '/transactions', icon: Receipt, label: 'Gastos' },
+  { path: '/categories', icon: Tag, label: 'Categorias' },
   { path: '/goals', icon: Target, label: 'Metas' },
   { path: '/store', icon: Store, label: 'Loja' },
   { path: '/profile', icon: User, label: 'Perfil' },

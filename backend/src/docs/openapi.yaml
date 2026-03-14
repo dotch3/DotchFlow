@@ -1,0 +1,1031 @@
+# DotchFlow API Specification
+# Created by: dotch3 (GitHub)
+# Version: 1.0.0
+---
+openapi: 3.0.3
+info:
+  title: DotchFlow API
+  description: |
+    RESTful API for DotchFlow - Personal finance manager with gamification.
+    
+    ## Authentication
+    Most endpoints require JWT authentication. To get a token:
+    1. Login at `/auth/login` to receive the token
+    
+    2. Add the header `Authorization: Bearer <YOUR_TOKEN>` to all authenticated requests
+    
+    ## Response Structure
+    - **Success**: `{ "data": ... }` or `{ "resource": ... }`
+    - **Error**: `{ "error": "error message" }` or `{ "errors": [...] }`
+  version: 1.0.0
+  contact:
+    name: dotch3
+    url: https://github.com/dotch3
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+  - url: https://api.dotchflow.com
+    description: Production server (coming soon)
+
+tags:
+  - name: Auth
+    description: User authentication and registration
+  - name: Transactions
+    description: Financial transaction management
+  - name: Categories
+    description: Transaction categories
+  - name: Goals
+    description: Financial goals
+  - name: Finance
+    description: Financial analysis and forecasts
+  - name: Gamification
+    description: XP, levels and achievements system
+  - name: Store
+    description: Customization store
+  - name: Admin
+    description: Administrative endpoints
+
+paths:
+  # =============================================================================
+  # HEALTH CHECK
+  # =============================================================================
+  /health:
+    get:
+      summary: API health check
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is running correctly
+          content:
+            application/json:
+              example:
+                status: ok
+                app: DotchFlow API
+                version: 1.0.0
+
+  # =============================================================================
+  # AUTH - Authentication
+  # =============================================================================
+  /auth/register:
+    post:
+      summary: Register new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email
+                password:
+                  type: string
+                  minLength: 6
+                  description: Password (minimum 6 characters)
+            example:
+              email: user@example.com
+              password: myPassword123
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                user:
+                  id: 1
+                  email: user@example.com
+                  xp_points: 0
+                  dotch_coins: 100
+                  level: 1
+                  streak_count: 0
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              example:
+                errors:
+                  - msg: Invalid email
+                    param: email
+                    location: body
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              example:
+                error: Email already registered
+        '403':
+          description: User limit reached
+          content:
+            application/json:
+              example:
+                error: Maximum user limit (50) reached
+
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              email: user@example.com
+              password: myPassword123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                user:
+                  id: 1
+                  email: user@example.com
+                  xp_points: 150
+                  dotch_coins: 250
+                  level: 3
+                  streak_count: 5
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              example:
+                errors:
+                  - msg: Invalid email
+                    param: email
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              example:
+                error: Invalid credentials
+
+  /auth/me:
+    get:
+      summary: Get current user data
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  email: user@example.com
+                  xp_points: 150
+                  dotch_coins: 250
+                  level: 3
+                  streak_count: 5
+                  last_checkin: 2024-01-15
+                  created_at: 2024-01-01T00:00:00.000Z
+
+  # =============================================================================
+  # TRANSACTIONS
+  # =============================================================================
+  /transactions:
+    get:
+      summary: List user transactions
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by category
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [income, expense]
+          description: Filter by type
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in description
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+          description: Result limit
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+      responses:
+        '200':
+          description: Transaction list
+          content:
+            application/json:
+              example:
+                transactions:
+                  - id: 1
+                    user_id: 1
+                    amount: 150.00
+                    description: Grocery store
+                    category_id: 1
+                    category_name: Food
+                    category_icon: 🍔
+                    date: 2024-01-15
+                    type: expense
+                    is_quick_entry: false
+                    is_recurring: false
+                    created_at: 2024-01-15T10:30:00.000Z
+                totals:
+                  income: 5000.00
+                  expense: 2350.00
+                balance: 2650.00
+
+    post:
+      summary: Create new transaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+                - type
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                  description: Transaction amount
+                type:
+                  type: string
+                  enum: [income, expense]
+                  description: Transaction type
+                description:
+                  type: string
+                  description: Optional description
+                category_id:
+                  type: integer
+                  description: Category ID
+                date:
+                  type: string
+                  format: date
+                  description: Date (YYYY-MM-DD), default is today
+                is_quick_entry:
+                  type: boolean
+                  description: Quick entry
+                is_recurring:
+                  type: boolean
+                  description: Recurring transaction
+            example:
+              amount: 89.90
+              type: expense
+              description: Pharmacy
+              category_id: 4
+              date: 2024-01-15
+              is_recurring: false
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              example:
+                transaction:
+                  id: 15
+                  user_id: 1
+                  amount: 89.90
+                  description: Pharmacy
+                  category_id: 4
+                  category_name: Health
+                  category_icon: 💊
+                  date: 2024-01-15
+                  type: expense
+                  is_quick_entry: false
+                  is_recurring: false
+                xp_gained: 10
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              example:
+                errors:
+                  - msg: Amount must be positive
+                    param: amount
+                    value: -50
+
+  /transactions/{id}:
+    put:
+      summary: Update transaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Transaction ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                description:
+                  type: string
+                category_id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+                type:
+                  type: string
+                  enum: [income, expense]
+                is_recurring:
+                  type: boolean
+            example:
+              amount: 120.00
+              description: Grocery store (updated)
+      responses:
+        '200':
+          description: Transaction updated
+          content:
+            application/json:
+              example:
+                transaction:
+                  id: 1
+                  amount: 120.00
+                  description: Grocery store (updated)
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              example:
+                error: Transaction not found
+
+    delete:
+      summary: Delete transaction
+      tags:
+        - Transactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Transaction deleted
+          content:
+            application/json:
+              example:
+                success: true
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              example:
+                error: Transaction not found
+
+  # =============================================================================
+  # CATEGORIES
+  # =============================================================================
+  /categories:
+    get:
+      summary: List user categories
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Category list
+          content:
+            application/json:
+              example:
+                categories:
+                  - id: 1
+                    user_id: 1
+                    name: Food
+                    icon: 🍔
+                    monthly_limit: 0
+                    monthly_spent: 450.00
+                    usage_percent: 0
+                  - id: 2
+                    user_id: 1
+                    name: Transportation
+                    icon: 🚗
+                    monthly_limit: 500
+                    monthly_spent: 320.00
+                    usage_percent: 64
+
+    post:
+      summary: Create new category
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Category name
+                icon:
+                  type: string
+                  description: "Emoji icon (default: 📁)"
+                monthly_limit:
+                  type: number
+                  description: "Monthly limit (default: 0)"
+            example:
+              name: Subscriptions
+              icon: 📱
+              monthly_limit: 200
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              example:
+                category:
+                  id: 10
+                  user_id: 1
+                  name: Subscriptions
+                  icon: 📱
+                  monthly_limit: 200
+        '400':
+          description: Name required
+          content:
+            application/json:
+              example:
+                error: Name is required
+
+  /categories/{id}:
+    put:
+      summary: Update category
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                icon:
+                  type: string
+                monthly_limit:
+                  type: number
+            example:
+              name: Subscriptions and Services
+              icon: 💳
+              monthly_limit: 250
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              example:
+                category:
+                  id: 10
+                  name: Subscriptions and Services
+                  icon: 💳
+                  monthly_limit: 250
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              example:
+                error: Category not found
+
+    delete:
+      summary: Delete category
+      tags:
+        - Categories
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Category deleted
+          content:
+            application/json:
+              example:
+                success: true
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              example:
+                error: Category not found
+
+  # =============================================================================
+  # GOALS
+  # =============================================================================
+  /goals:
+    get:
+      summary: List financial goals
+      tags:
+        - Goals
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Goal list
+          content:
+            application/json:
+              example:
+                goals:
+                  - id: 1
+                    user_id: 1
+                    name: Trip to Disney
+                    target_amount: 15000
+                    current_amount: 4500
+                    deadline: 2024-12-31
+                    status: in_progress
+                    remaining: 10500
+                    progress_percent: 30
+                    monthly_needed: 875
+                  - id: 2
+                    user_id: 1
+                    name: New Car
+                    target_amount: 80000
+                    current_amount: 80000
+                    deadline: 2025-06-01
+                    status: completed
+                    remaining: 0
+                    progress_percent: 100
+
+    post:
+      summary: Create new goal
+      tags:
+        - Goals
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - target_amount
+              properties:
+                name:
+                  type: string
+                  description: Goal name
+                target_amount:
+                  type: number
+                  description: Target amount
+                deadline:
+                  type: string
+                  format: date
+                  description: Deadline (YYYY-MM-DD), optional
+            example:
+              name: Own Home
+              target_amount: 100000
+              deadline: 2026-01-01
+      responses:
+        '201':
+          description: Goal created
+          content:
+            application/json:
+              example:
+                goal:
+                  id: 5
+                  name: Own Home
+                  target_amount: 100000
+                  current_amount: 0
+                  deadline: 2026-01-01
+                  status: in_progress
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              example:
+                error: Name and target amount are required
+
+  /goals/{id}/deposit:
+    post:
+      summary: Deposit to a goal
+      tags:
+        - Goals
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+            example:
+              amount: 500
+      responses:
+        '200':
+          description: Deposit successful
+          content:
+            application/json:
+              example:
+                goal:
+                  id: 1
+                  current_amount: 5000
+                  status: in_progress
+                xp_gained: 0
+                completed: false
+        '400':
+          description: Invalid amount
+          content:
+            application/json:
+              example:
+                error: Invalid amount
+        '404':
+          description: Goal not found
+          content:
+            application/json:
+              example:
+                error: Goal not found
+
+  /goals/{id}:
+    delete:
+      summary: Delete goal
+      tags:
+        - Goals
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Goal deleted
+          content:
+            application/json:
+              example:
+                success: true
+        '404':
+          description: Goal not found
+          content:
+            application/json:
+              example:
+                error: Goal not found
+
+  # =============================================================================
+  # FINANCE - Financial Analysis
+  # =============================================================================
+  /finance/health:
+    get:
+      summary: Financial health (50-15-35 rule)
+      tags:
+        - Finance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+          description: "Year (default: current year)"
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: "Month (default: current month)"
+      responses:
+        '200':
+          description: Financial health analysis
+          content:
+            application/json:
+              example:
+                period: "2024-01"
+                balance: 2650.00
+                total_income: 5000.00
+                total_expense: 2350.00
+                breakdown:
+                  essential:
+                    amount: 1200
+                    percent: "24.0"
+                    ideal: 50
+                  priority:
+                    amount: 800
+                    percent: "16.0"
+                    ideal: 15
+                  lifestyle:
+                    amount: 350
+                    percent: "7.0"
+                    ideal: 35
+                health_score: 72
+                score_label: Good 🟡
+
+  /finance/forecast:
+    get:
+      summary: 30-day financial forecast
+      tags:
+        - Finance
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Monthly forecast
+          content:
+            application/json:
+              example:
+                current_balance: 2650.00
+                projected_end_of_month: 1890.50
+                daily_trend: 25.32
+                forecast:
+                  - date: "2024-01-16"
+                    balance: 2675.32
+                  - date: "2024-01-17"
+                    balance: 2700.64
+
+  # =============================================================================
+  # GAMIFICATION
+  # =============================================================================
+  /gamification/checkin:
+    post:
+      summary: Daily check-in (earn XP)
+      tags:
+        - Gamification
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Check-in done
+          content:
+            application/json:
+              example:
+                xp_gained: 25
+                streak_bonus: 50
+                new_streak: 6
+                leveled_up: false
+                new_level: 3
+        '400':
+          description: Already checked in today
+          content:
+            application/json:
+              example:
+                error: You already checked in today!
+                next_checkin: "2024-01-16T00:00:00.000Z"
+
+  /gamification/achievements:
+    get:
+      summary: List achievements
+      tags:
+        - Gamification
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Achievement list
+          content:
+            application/json:
+              example:
+                achievements:
+                  - id: 1
+                    name: First Step
+                    description: Complete your first transaction
+                    icon: 🌟
+                    unlocked: true
+                    unlocked_at: 2024-01-05
+                  - id: 2
+                    name: Saver
+                    description: Save R$1000
+                    icon: 💰
+                    unlocked: false
+
+  /gamification/leaderboard:
+    get:
+      summary: User leaderboard
+      tags:
+        - Gamification
+      responses:
+        '200':
+          description: XP ranking
+          content:
+            application/json:
+              example:
+                leaderboard:
+                  - rank: 1
+                    user_id: 5
+                    email: john@example.com
+                    xp_points: 5000
+                    level: 10
+
+  # =============================================================================
+  # STORE
+  # =============================================================================
+  /store/items:
+    get:
+      summary: List store items
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Available items
+          content:
+            application/json:
+              example:
+                items:
+                  - id: 1
+                    name: Dark Theme
+                    description: Elegant dark theme
+                    price: 100
+                    type: theme
+                    purchased: false
+                  - id: 2
+                    name: Veteran Badge
+                    description: Show your experience
+                    price: 500
+                    type: badge
+                    purchased: true
+
+  /store/purchase/{itemId}:
+    post:
+      summary: Purchase item
+      tags:
+        - Store
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Purchase successful
+          content:
+            application/json:
+              example:
+                success: true
+                new_balance: 150
+        '400':
+          description: Insufficient balance or already purchased
+          content:
+            application/json:
+              example:
+                error: Insufficient balance
+
+  # =============================================================================
+  # ADMIN
+  # =============================================================================
+  /admin/stats:
+    get:
+      summary: System statistics (admin)
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics
+          content:
+            application/json:
+              example:
+                total_users: 12
+                total_transactions: 1547
+                total_categories: 72
+
+  /admin/users:
+    get:
+      summary: List users (admin)
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User list
+          content:
+            application/json:
+              example:
+                users:
+                  - id: 1
+                    email: admin@dotchflow.com
+                    level: 15
+                    xp_points: 15000
+                    created_at: 2024-01-01
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained via `/auth/login` or `/auth/register`
+
+security:
+  - BearerAuth: []
+
+# Extra tags for organization
+x-tagGroups:
+  - name: Authentication
+    tags:
+      - Auth
+  - name: User Data
+    tags:
+      - Transactions
+      - Categories
+      - Goals
+      - Finance
+  - name: Gamification
+    tags:
+      - Gamification
+      - Store
+  - name: Administrative
+    tags:
+      - Admin
+      - Health

@@ -11,7 +11,7 @@ const path = require('path');
 const DB_PATH = './data/dotchflow.db';
 const TEST_USER = {
   email: 'test@dotchflow.com',
-  password: 'test123'
+  password: 'myPassword123'
 };
 
 // Schema definition (same as db.js)
