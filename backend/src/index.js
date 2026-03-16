@@ -14,6 +14,7 @@ const goalsRoutes = require('./ui/routes/goals');
 const storeRoutes = require('./ui/routes/store');
 const adminRoutes = require('./ui/routes/admin');
 const { getDatabase } = require('./infra/database/db');
+const { t } = require('./i18n');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,7 +25,7 @@ const swaggerOptions = {
     openapi: '3.0.3',
     info: {
       title: 'DotchFlow API',
-      description: 'API RESTful para o aplicativo DotchFlow - Gerenciador financeiro pessoal com gamificação.\n\n## Autenticação\nA maioria dos endpoints requer autenticação via token JWT. Para obter o token:\n1. Faça login em `/auth/login` para receber o token\n2. Adicione o header `Authorization: Bearer <SEU_TOKEN>` em todas as requisições autenticadas',
+      description: 'RESTful API for DotchFlow - Personal finance manager with gamification.\n\n## Authentication\nMost endpoints require JWT authentication. To get a token:\n1. Login at `/auth/login` to receive the token\n\n2. Add the header `Authorization: Bearer <YOUR_TOKEN>` to all authenticated requests\n\n## Response Structure\n- **Success**: `{ "data": ... }` or `{ "resource": ... }`\n\n- **Error**: `{ "error": "error message" }` or `{ "errors": [...] }`',
       version: '1.0.0',
       contact: {
         name: 'dotch3',
@@ -38,7 +39,7 @@ const swaggerOptions = {
     servers: [
       {
         url: 'http://localhost:3001',
-        description: 'Servidor de desenvolvimento local'
+        description: 'Local development server'
       }
     ],
     components: {
@@ -78,12 +79,12 @@ app.use('/store', storeRoutes);
 app.use('/admin', adminRoutes);
 
 // 404
-app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada' }));
+app.use(async (req, res) => res.status(404).json({ error: await t('errors.routeNotFound') }));
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Erro interno do servidor' });
+  res.status(500).json({ error: await t('errors.internal') });
 });
 
 // Initialize DB then start server

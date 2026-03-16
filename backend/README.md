@@ -63,15 +63,15 @@ The database will be automatically recreated on next server start.
 
 The following data is automatically created on first run:
 
-**Store Items (Loja):**
+**Store Items:**
 | Item | Cost | Level |
 |------|------|-------|
-| 🌙 Tema Dark Premium | 100 coins | 1 |
-| 🌅 Tema Sunset | 150 coins | 3 |
-| 🔔 Notificações Inteligentes | 200 coins | 5 |
-| 👑 Avatar Dourado | 300 coins | 7 |
-| 💼 Modo Multi-Carteira | 500 coins | 10 |
-| 📊 Relatório Anual Pdf | 250 coins | 5 |
+| 🌙 Dark Theme Premium | 100 coins | 1 |
+| 🌅 Sunset Theme | 150 coins | 3 |
+| 🔔 Smart Notifications | 200 coins | 5 |
+| 👑 Golden Avatar | 300 coins | 7 |
+| 💼 Multi-Wallet Mode | 500 coins | 10 |
+| 📊 Annual PDF Report | 250 coins | 5 |
 
 User data (transactions, goals, etc.) is created when you register via the app.
 
@@ -119,13 +119,13 @@ After running seed, login with:
 | Field | Value |
 |-------|-------|
 | Email | `test@dotchflow.com` |
-| Password | `test123` |
+| Password | `myPassword123` |
 | XP Points | 500 |
 | Level | 3 |
 | Coins | 250 |
 | Streak | 5 days |
 
-**Includes:** 8 categories, 15 transactions (last 30 days), 3 goals, and 2 unlocked store items.
+**Includes:** 9 categories, 16 transactions (last 30 days), 3 goals, and 2 unlocked store items.
 
 ## Endpoints
 
@@ -135,6 +135,7 @@ After running seed, login with:
 | POST | `/auth/register` | Create account |
 | POST | `/auth/login` | Login |
 | GET | `/auth/me` | User data |
+| PUT | `/auth/language` | Update language preference |
 
 ### Gamification
 | Method | Route | Description |

@@ -11,7 +11,6 @@ info:
     ## Authentication
     Most endpoints require JWT authentication. To get a token:
     1. Login at `/auth/login` to receive the token
-    
     2. Add the header `Authorization: Bearer <YOUR_TOKEN>` to all authenticated requests
     
     ## Response Structure
@@ -201,12 +200,61 @@ paths:
                 user:
                   id: 1
                   email: user@example.com
-                  xp_points: 150
+                  language: en
+                  xp_points: 500
                   dotch_coins: 250
                   level: 3
                   streak_count: 5
-                  last_checkin: 2024-01-15
-                  created_at: 2024-01-01T00:00:00.000Z
+                  last_checkin: "2024-01-15"
+                  created_at: "2024-01-01T00:00:00.000Z"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              example:
+                error: User not found
+
+  /auth/language:
+    put:
+      summary: Update user language preference
+      tags:
+        - Auth
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - language
+              properties:
+                language:
+                  type: string
+                  enum: [en, es, pt-BR]
+                  description: Language code
+            example:
+              language: en
+      responses:
+        '200':
+          description: Language updated
+          content:
+            application/json:
+              example:
+                user:
+                  id: 1
+                  email: user@example.com
+                  language: en
+                  xp_points: 500
+                  dotch_coins: 250
+                  level: 3
+        '400':
+          description: Invalid language
+          content:
+            application/json:
+              example:
+                  error: "Invalid language. Allowed values: en, es, pt-BR"
 
   # =============================================================================
   # TRANSACTIONS
@@ -844,67 +892,51 @@ paths:
           content:
             application/json:
               example:
-                xp_gained: 25
-                streak_bonus: 50
-                new_streak: 6
+                success: true
+                xp_gained: 50
+                coins_gained: 10
+                streak_count: 6
+                xp_points: 550
+                dotch_coins: 260
+                level: 3
                 leveled_up: false
-                new_level: 3
+                message: 6 days in a row! Bonus applied!
         '400':
           description: Already checked in today
           content:
             application/json:
               example:
-                error: You already checked in today!
-                next_checkin: "2024-01-16T00:00:00.000Z"
+                error: Already checked in today!
+                next_checkin: "2024-01-16 23:59:59"
 
-  /gamification/achievements:
+  /gamification/status:
     get:
-      summary: List achievements
+      summary: Get gamification status
       tags:
         - Gamification
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Achievement list
+          description: User gamification data
           content:
             application/json:
               example:
-                achievements:
-                  - id: 1
-                    name: First Step
-                    description: Complete your first transaction
-                    icon: 🌟
-                    unlocked: true
-                    unlocked_at: 2024-01-05
-                  - id: 2
-                    name: Saver
-                    description: Save R$1000
-                    icon: 💰
-                    unlocked: false
-
-  /gamification/leaderboard:
-    get:
-      summary: User leaderboard
-      tags:
-        - Gamification
-      responses:
-        '200':
-          description: XP ranking
-          content:
-            application/json:
-              example:
-                leaderboard:
-                  - rank: 1
-                    user_id: 5
-                    email: john@example.com
-                    xp_points: 5000
-                    level: 10
+                id: 1
+                level: 3
+                xp_points: 500
+                dotch_coins: 250
+                streak_count: 5
+                last_checkin: "2024-01-15"
+                xp_progress: 0
+                xp_to_next_level: 500
+                xp_percent: 0
+                checked_in_today: false
 
   # =============================================================================
   # STORE
   # =============================================================================
-  /store/items:
+  /store:
     get:
       summary: List store items
       tags:
@@ -919,31 +951,39 @@ paths:
               example:
                 items:
                   - id: 1
-                    name: Dark Theme
+                    item_name: Dark Theme Premium
                     description: Elegant dark theme
-                    price: 100
-                    type: theme
-                    purchased: false
-                  - id: 2
-                    name: Veteran Badge
-                    description: Show your experience
-                    price: 500
-                    type: badge
-                    purchased: true
+                    icon: 🌙
+                    cost_in_coins: 100
+                    required_level: 1
+                    category: theme
+                    unlocked: false
+                    can_afford: true
+                    meets_level: true
+                dotch_coins: 250
+                level: 3
 
-  /store/purchase/{itemId}:
+  /store/unlock:
     post:
-      summary: Purchase item
+      summary: Unlock/purchase item
       tags:
         - Store
       security:
         - BearerAuth: []
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          schema:
-            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - store_item_id
+              properties:
+                store_item_id:
+                  type: integer
+                  description: Store item ID to unlock
+            example:
+              store_item_id: 1
       responses:
         '200':
           description: Purchase successful
@@ -951,53 +991,85 @@ paths:
             application/json:
               example:
                 success: true
-                new_balance: 150
+                item_unlocked: Dark Theme Premium
+                coins_spent: 100
+                dotch_coins_remaining: 150
         '400':
-          description: Insufficient balance or already purchased
+          description: Item required
           content:
             application/json:
               example:
-                error: Insufficient balance
+                error: Item is required
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              example:
+                error: Item not found
+        '409':
+          description: Already unlocked
+          content:
+            application/json:
+              example:
+                error: Item already unlocked
+        '403':
+          description: Insufficient level or coins
+          content:
+            application/json:
+              example:
+                error: Insufficient DotchCoins
 
   # =============================================================================
   # ADMIN
   # =============================================================================
-  /admin/stats:
-    get:
-      summary: System statistics (admin)
+  /admin/cleanup:
+    post:
+      summary: Trigger database cleanup
       tags:
         - Admin
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Statistics
+          description: Cleanup completed
           content:
             application/json:
               example:
-                total_users: 12
-                total_transactions: 1547
-                total_categories: 72
+                success: true
+                message: Internal error
+                deleted:
+                  transactions: 0
+                  orphaned_categories: 0
+                  orphaned_goals: 0
+                  orphaned_unlocks: 0
+                last_cleanup: "2024-01-15T10:00:00.000Z"
+                next_cleanup_in_days: 30
 
-  /admin/users:
+  /admin/status:
     get:
-      summary: List users (admin)
+      summary: Get database status and cleanup info
       tags:
         - Admin
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: User list
+          description: System status
           content:
             application/json:
               example:
-                users:
-                  - id: 1
-                    email: admin@dotchflow.com
-                    level: 15
-                    xp_points: 15000
-                    created_at: 2024-01-01
+                stats:
+                  users: 1
+                  transactions: 16
+                  categories: 9
+                  goals: 3
+                config:
+                  max_users: 50
+                  cleanup_interval_days: 30
+                cleanup:
+                  last_cleanup: null
+                  next_cleanup: null
+                  cleanup_needed: true
 
 components:
   securitySchemes:

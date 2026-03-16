@@ -1,10 +1,11 @@
 // src/pages/GoalsPage.jsx
 import { useState, useEffect } from 'react';
 import { Plus, X, Target, PlusCircle, Calendar, PiggyBank } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
 
-function GoalCard({ goal, onDeposit, fmtBRL }) {
+function GoalCard({ goal, onDeposit, fmtBRL, t }) {
   const pct = goal.target_amount > 0 ? Math.min(100, (goal.current_amount / goal.target_amount) * 100) : 0;
   const isComplete = pct >= 100;
   
@@ -20,8 +21,8 @@ function GoalCard({ goal, onDeposit, fmtBRL }) {
             <p className="font-semibold text-base">{goal.name}</p>
             <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
               {goal.deadline 
-                ? `Prazo: ${new Date(goal.deadline + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}`
-                : 'Sem prazo definido'}
+                ? `${t('goals.deadline', 'Prazo')}: ${new Date(goal.deadline + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                : t('goals.noDeadline', 'Sem prazo definido')}
             </p>
           </div>
         </div>
@@ -50,19 +51,19 @@ function GoalCard({ goal, onDeposit, fmtBRL }) {
           </p>
           {goal.monthly_needed && !isComplete && (
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-              {fmtBRL(goal.monthly_needed)}/mês
+              {fmtBRL(goal.monthly_needed)}{t('goals.perMonth', '/mês')}
             </p>
           )}
         </div>
         {isComplete ? (
-          <span className="badge badge-success">Concluído!</span>
+          <span className="badge badge-success">{t('goals.completed', 'Concluído!')}</span>
         ) : (
           <button 
             onClick={() => onDeposit(goal)}
             className="btn btn-secondary text-xs py-2"
           >
             <PlusCircle size={14} />
-            Depositar
+            {t('goals.deposit', 'Depositar')}
           </button>
         )}
       </div>
@@ -70,7 +71,7 @@ function GoalCard({ goal, onDeposit, fmtBRL }) {
   );
 }
 
-function CreateGoalModal({ onClose, onSaved }) {
+function CreateGoalModal({ onClose, onSaved, t }) {
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('🎯');
   const [targetAmount, setTargetAmount] = useState('');
@@ -94,7 +95,7 @@ function CreateGoalModal({ onClose, onSaved }) {
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-            Nova Meta
+            {t('goals.add', 'Nova Meta')}
           </h2>
           <button onClick={onClose} className="icon-btn" style={{ width: 32, height: 32 }}>
             <X size={16} />
@@ -104,7 +105,7 @@ function CreateGoalModal({ onClose, onSaved }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-medium mb-2 block" style={{ color: 'var(--color-text-tertiary)' }}>
-              Ícone
+              {t('categories.icon', 'Ícone')}
             </label>
             <div className="flex flex-wrap gap-2">
               {emojis.map(e => (
@@ -129,7 +130,7 @@ function CreateGoalModal({ onClose, onSaved }) {
               value={name}
               onChange={e => setName(e.target.value)}
               required
-              placeholder="Nome da meta"
+              placeholder={t('goals.namePlaceholder', 'Nome da meta')}
               className="input"
             />
           </div>
@@ -142,7 +143,7 @@ function CreateGoalModal({ onClose, onSaved }) {
               type="number"
               min="1"
               step="0.01"
-              placeholder="Valor da meta (R$)"
+              placeholder={t('goals.targetAmountPlaceholder', 'Valor da meta (R$)')}
               className="input"
             />
           </div>
@@ -158,7 +159,7 @@ function CreateGoalModal({ onClose, onSaved }) {
           </div>
           
           <button type="submit" disabled={loading} className="btn btn-primary w-full">
-            {loading ? 'Criando...' : '🎯 Criar Meta'}
+            {loading ? t('common.loading', 'Criando...') : `🎯 ${t('goals.createGoal', 'Criar Meta')}`}
           </button>
         </form>
       </div>
@@ -166,7 +167,7 @@ function CreateGoalModal({ onClose, onSaved }) {
   );
 }
 
-function DepositModal({ goal, onClose, onSaved, fmtBRL }) {
+function DepositModal({ goal, onClose, onSaved, fmtBRL, t }) {
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const remaining = goal.target_amount - goal.current_amount;
@@ -197,7 +198,7 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL }) {
         </div>
         
         <div className="p-3 rounded-xl mb-4" style={{ background: 'var(--color-bg-tertiary)' }}>
-          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>Falta para completar</p>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.remaining', 'Falta para completar')}</p>
           <p className="text-xl font-bold" style={{ color: 'var(--color-primary-light)' }}>
             {fmtBRL(remaining)}
           </p>
@@ -229,12 +230,12 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL }) {
             type="number"
             min="0.01"
             step="0.01"
-            placeholder="Valor a depositar (R$)"
+            placeholder={t('goals.depositPlaceholder', 'Valor a depositar (R$)')}
             className="input"
           />
           
           <button type="submit" disabled={loading} className="btn btn-primary w-full">
-            {loading ? 'Depositando...' : '💰 Depositar'}
+            {loading ? t('goals.depositing', 'Depositando...') : `💰 ${t('goals.deposit', 'Depositar')}`}
           </button>
         </form>
       </div>
@@ -243,6 +244,7 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL }) {
 }
 
 export default function GoalsPage() {
+  const { t } = useTranslation();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -270,14 +272,14 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Metas</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('goals.title', 'Metas')}</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-            Acompanhe seus objetivos financeiros
+            {t('goals.subtitle', 'Acompanhe seus objetivos financeiros')}
           </p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn btn-primary">
           <Plus size={16} />
-          <span className="hidden sm:inline">Nova</span>
+          <span className="hidden sm:inline">{t('common.add', 'Nova')}</span>
         </button>
       </div>
 
@@ -286,14 +288,14 @@ export default function GoalsPage() {
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Target size={16} style={{ color: 'var(--color-primary-light)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>Ativas</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.active', 'Ativas')}</span>
           </div>
           <p className="text-2xl font-bold">{activeGoals.length}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <PiggyBank size={16} style={{ color: 'var(--color-accent)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>Concluídas</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.completedPlural', 'Concluídas')}</span>
           </div>
           <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>{completedGoals.length}</p>
         </div>
@@ -308,14 +310,14 @@ export default function GoalsPage() {
         <div className="empty-state">
           <div className="empty-state-icon">🎯</div>
           <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Nenhuma meta ainda
+            {t('goals.noGoals', 'Nenhuma meta ainda')}
           </h3>
           <p className="text-sm mb-4" style={{ color: 'var(--color-text-tertiary)' }}>
-            Crie sua primeira meta e comece a poupar!
+            {t('goals.createFirst', 'Crie sua primeira meta e comece a poupar!')}
           </p>
           <button onClick={() => setShowCreate(true)} className="btn btn-primary">
             <Plus size={16} />
-            Criar Meta
+            {t('goals.add', 'Criar Meta')}
           </button>
         </div>
       ) : (
@@ -326,6 +328,7 @@ export default function GoalsPage() {
               goal={g} 
               fmtBRL={fmtBRL} 
               onDeposit={setDepositGoal}
+              t={t}
               style={{ animationDelay: `${i * 0.1}s` }}
             />
           ))}
@@ -335,7 +338,8 @@ export default function GoalsPage() {
       {showCreate && (
         <CreateGoalModal 
           onClose={() => setShowCreate(false)} 
-          onSaved={() => { setShowCreate(false); refreshUser(); load(); }} 
+          onSaved={() => { setShowCreate(false); refreshUser(); load(); }}
+          t={t}
         />
       )}
       {depositGoal && (
@@ -343,7 +347,8 @@ export default function GoalsPage() {
           goal={depositGoal} 
           fmtBRL={fmtBRL}
           onClose={() => setDepositGoal(null)} 
-          onSaved={() => { setDepositGoal(null); refreshUser(); load(); }} 
+          onSaved={() => { setDepositGoal(null); refreshUser(); load(); }}
+          t={t}
         />
       )}
     </div>

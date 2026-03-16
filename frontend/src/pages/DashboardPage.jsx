@@ -6,6 +6,7 @@ import {
   Target, Calendar, ChevronRight, Sparkles, HelpCircle, X 
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 import * as api from '../api/client';
 
@@ -48,8 +49,8 @@ function XPBar({ xp_progress, xp_to_next_level, level }) {
             <Sparkles size={16} className="text-white" />
           </div>
           <div>
-            <span className="font-semibold text-sm">Nível {level}</span>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Progresso até o próximo nível</p>
+            <span className="font-semibold text-sm">{t('profile.level')} {level}</span>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('dashboard.levelProgress', 'Progresso até o próximo nível')}</p>
           </div>
         </div>
         <span className="text-sm font-medium" style={{ color: 'var(--color-primary-light)' }}>{pct}%</span>
@@ -65,25 +66,25 @@ function XPBar({ xp_progress, xp_to_next_level, level }) {
   );
 }
 
-function HealthScore({ health }) {
+function HealthScore({ health, t }) {
   if (!health) return null;
   
   const data = [
-    { name: 'Essencial', value: parseFloat(health.breakdown?.essential?.percent || 0), color: COLORS.essential },
-    { name: 'Prioridade', value: parseFloat(health.breakdown?.priority?.percent || 0), color: COLORS.priority },
-    { name: 'Estilo', value: parseFloat(health.breakdown?.lifestyle?.percent || 0), color: COLORS.lifestyle },
+    { name: t('dashboard.essential', 'Essencial'), value: parseFloat(health.breakdown?.essential?.percent || 0), color: COLORS.essential },
+    { name: t('dashboard.priority', 'Prioridade'), value: parseFloat(health.breakdown?.priority?.percent || 0), color: COLORS.priority },
+    { name: t('dashboard.lifestyle', 'Estilo'), value: parseFloat(health.breakdown?.lifestyle?.percent || 0), color: COLORS.lifestyle },
   ].filter(d => d.value > 0);
 
   const scoreColor = health.health_score >= 75 ? 'var(--color-accent)' : 
                      health.health_score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
   
-  const scoreLabel = health.health_score >= 75 ? 'Excelente' : 
-                     health.health_score >= 50 ? 'Bom' : 'Atenção';
+  const scoreLabel = health.health_score >= 75 ? t('dashboard.excellent', 'Excelente') : 
+                     health.health_score >= 50 ? t('dashboard.good', 'Bom') : t('dashboard.attention', 'Atenção');
 
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-base">Saúde Financeira</h3>
+        <h3 className="font-semibold text-base">{t('dashboard.financialHealth', 'Saúde Financeira')}</h3>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold" style={{ color: scoreColor }}>{health.health_score}</span>
           <span className="text-xs" style={{ color: scoreColor }}>/100</span>
@@ -131,7 +132,7 @@ function HealthScore({ health }) {
   );
 }
 
-function ForecastChart({ forecast }) {
+function ForecastChart({ forecast, t }) {
   if (!forecast?.forecast) return null;
 
   const fmtBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
@@ -140,12 +141,12 @@ function ForecastChart({ forecast }) {
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-base">Projeção 30 dias</h3>
+        <h3 className="font-semibold text-base">{t('dashboard.30dayForecast', 'Projeção 30 dias')}</h3>
         <div className="text-right">
           <p className="text-sm font-medium" style={{ color: isPositive ? 'var(--color-accent)' : 'var(--color-danger)' }}>
             {fmtBRL(forecast.projected_end_of_month)}
           </p>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>fim do mês</p>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('dashboard.endOfMonth', 'fim do mês')}</p>
         </div>
       </div>
       
@@ -193,7 +194,7 @@ function ForecastChart({ forecast }) {
   );
 }
 
-function QuickActions() {
+function QuickActions({ t }) {
   const navigate = useNavigate();
   
   return (
@@ -205,7 +206,7 @@ function QuickActions() {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-accent-muted)' }}>
           <TrendingUp size={18} className="text-emerald-400" />
         </div>
-        <span className="text-xs font-medium">Receita</span>
+        <span className="text-xs font-medium">{t('transactions.income', 'Receita')}</span>
       </button>
       <button 
         className="card p-3 flex flex-col items-center gap-2 hover-lift"
@@ -214,7 +215,7 @@ function QuickActions() {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-danger-muted)' }}>
           <TrendingDown size={18} className="text-red-400" />
         </div>
-        <span className="text-xs font-medium">Despesa</span>
+        <span className="text-xs font-medium">{t('transactions.expense', 'Despesa')}</span>
       </button>
       <button 
         className="card p-3 flex flex-col items-center gap-2 hover-lift"
@@ -223,13 +224,14 @@ function QuickActions() {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-primary-muted)' }}>
           <Target size={18} className="text-indigo-400" />
         </div>
-        <span className="text-xs font-medium">Meta</span>
+        <span className="text-xs font-medium">{t('goals.title', 'Meta')}</span>
       </button>
     </div>
   );
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { user, refreshUser } = useAuthStore();
   const [gamification, setGamification] = useState(null);
   const [health, setHealth] = useState(null);
@@ -266,7 +268,7 @@ export default function DashboardPage() {
       refreshUser();
       setTimeout(() => setCheckinMsg(null), 4000);
     } catch (err) {
-      setCheckinMsg(err.response?.data?.error || 'Erro');
+      setCheckinMsg(err.response?.data?.error || t('common.error', 'Erro'));
       setTimeout(() => setCheckinMsg(null), 3000);
     }
     setCheckinLoading(false);
@@ -282,17 +284,17 @@ export default function DashboardPage() {
       <div className="pt-2 fade-in-up flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            Olá, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
+            {t('dashboard.hello', 'Olá')}, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            Continue assim! Você está no caminho certo.
+            {t('dashboard.keepGoing', 'Continue assim! Você está no caminho certo.')}
           </p>
         </div>
         <button 
           onClick={() => setShowHelp(true)}
           className="p-2 rounded-xl hover-lift"
           style={{ background: 'var(--color-bg-tertiary)' }}
-          title="Ajuda"
+          title={t('dashboard.help', 'Ajuda')}
         >
           <HelpCircle size={20} style={{ color: 'var(--color-text-secondary)' }} />
         </button>
@@ -304,7 +306,7 @@ export default function DashboardPage() {
           <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-                Como Funciona
+                {t('dashboard.howItWorks', 'Como Funciona')}
               </h2>
               <button onClick={() => setShowHelp(false)} className="icon-btn" style={{ width: 32, height: 32 }}>
                 <X size={16} />
@@ -372,36 +374,36 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Actions */}
-      <QuickActions />
+      <QuickActions t={t} />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
         <StatCard 
           icon={Wallet} 
-          label="Saldo Total" 
+          label={t('dashboard.totalBalance', 'Saldo Total')} 
           value={fmtBRL(health?.balance)} 
           sub={health?.period}
           color="#6366F1" 
         />
         <StatCard 
           icon={Flame} 
-          label="Sequência" 
-          value={`${gamification?.streak_count || 0} dias`} 
-          sub="consecutivos"
+          label={t('profile.streak', 'Sequência')} 
+          value={`${gamification?.streak_count || 0} ${t('profile.days', 'dias')}`} 
+          sub={t('dashboard.consecutive', 'consecutivos')}
           color="#F59E0B" 
         />
         <StatCard 
           icon={TrendingUp} 
-          label="Receitas" 
+          label={t('dashboard.income', 'Receitas')} 
           value={fmtBRL(health?.total_income)} 
-          sub="este mês"
+          sub={t('dashboard.thisMonth', 'este mês')}
           color="#10B981" 
         />
         <StatCard 
           icon={TrendingDown} 
-          label="Despesas" 
+          label={t('dashboard.expenses', 'Despesas')} 
           value={fmtBRL(health?.total_expense)} 
-          sub="este mês"
+          sub={t('dashboard.thisMonth', 'este mês')}
           color="#EF4444" 
         />
       </div>
@@ -429,10 +431,10 @@ export default function DashboardPage() {
           }}
         >
           {gamification?.checked_in_today 
-            ? '✓ Check-in realizado hoje!' 
+            ? `✓ ${t('dashboard.checkinDone', 'Check-in realizado hoje!')}`
             : checkinLoading 
-              ? 'Processando...' 
-              : '⚡ Fazer Check-in Diário'}
+              ? t('common.loading', 'Processando...')
+              : `⚡ ${t('dashboard.dailyCheckin', 'Fazer Check-in Diário')}`}
         </button>
         {!gamification?.checked_in_today && (
           <p className="text-xs text-center mt-2" style={{ color: 'var(--color-text-muted)' }}>
@@ -442,10 +444,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Health Score */}
-      <HealthScore health={health} />
+      <HealthScore health={health} t={t} />
 
       {/* Forecast Chart */}
-      <ForecastChart forecast={forecast} />
+      <ForecastChart forecast={forecast} t={t} />
     </div>
   );
 }

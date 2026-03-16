@@ -2,10 +2,12 @@
 import { useState, useEffect } from 'react';
 import { User, Activity, Award, BarChart2, Gem, Flame, Zap, ChevronRight } from 'lucide-react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const [gamification, setGamification] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,12 +30,12 @@ export default function ProfilePage() {
   ] : [];
 
   const getLevelTitle = (lvl) => {
-    if (!lvl) return 'Iniciante';
-    if (lvl >= 20) return 'Mestre Financeiro';
-    if (lvl >= 15) return 'Especialista';
-    if (lvl >= 10) return 'Avançado';
-    if (lvl >= 5) return 'Intermediário';
-    return 'Iniciante';
+    if (!lvl) return t('profile.beginner', 'Iniciante');
+    if (lvl >= 20) return t('profile.financialMaster', 'Mestre Financeiro');
+    if (lvl >= 15) return t('profile.specialist', 'Especialista');
+    if (lvl >= 10) return t('profile.advanced', 'Avançado');
+    if (lvl >= 5) return t('profile.intermediate', 'Intermediário');
+    return t('profile.beginner', 'Iniciante');
   };
 
   const tierColor = (lvl) => {
@@ -60,9 +62,9 @@ export default function ProfilePage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="pt-2">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Perfil</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('profile.title', 'Perfil')}</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-          Suas informações e conquistas
+          {t('profile.subtitle', 'Suas informações e conquistas')}
         </p>
       </div>
 
@@ -89,19 +91,19 @@ export default function ProfilePage() {
             <p className="text-xl font-bold" style={{ color: 'var(--color-primary-light)' }}>
               {gamification?.level || 1}
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Nível</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.level', 'Nível')}</p>
           </div>
           <div className="text-center" style={{ borderLeft: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)' }}>
             <p className="text-xl font-bold flex items-center justify-center gap-1" style={{ color: '#F59E0B' }}>
               <Gem size={14} />{gamification?.dotch_coins || 0}
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Coins</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.coins', 'Coins')}</p>
           </div>
           <div className="text-center">
             <p className="text-xl font-bold flex items-center justify-center gap-1" style={{ color: '#F59E0B' }}>
               <Flame size={14} />{gamification?.streak_count || 0}
             </p>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Sequência</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.streak', 'Sequência')}</p>
           </div>
         </div>
       </div>
@@ -112,17 +114,17 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-base flex items-center gap-2">
               <Activity size={16} style={{ color: 'var(--color-primary-light)' }} />
-              Progresso
+              {t('profile.progress', 'Progresso')}
             </h3>
             <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              {gamification.xp_points} XP total
+              {gamification.xp_points} XP {t('profile.total', 'total')}
             </span>
           </div>
           
           <div className="mb-2">
             <div className="flex justify-between text-xs mb-1.5">
-              <span style={{ color: 'var(--color-text-secondary)' }}>Nível {gamification.level}</span>
-              <span style={{ color: 'var(--color-text-muted)' }}>{gamification.xp_to_next_level - gamification.xp_progress} para próximo</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{t('profile.level')} {gamification.level}</span>
+              <span style={{ color: 'var(--color-text-muted)' }}>{gamification.xp_to_next_level - gamification.xp_progress} {t('profile.toNext', 'para próximo')}</span>
             </div>
             <div className="progress-bar">
               <div 
@@ -139,7 +141,7 @@ export default function ProfilePage() {
         <div className="card p-4">
           <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
             <BarChart2 size={16} style={{ color: 'var(--color-primary-light)' }} />
-            Estatísticas
+            {t('profile.statistics', 'Estatísticas')}
           </h3>
           <ResponsiveContainer width="100%" height={200}>
             <RadarChart data={radarData}>
@@ -161,7 +163,7 @@ export default function ProfilePage() {
       <div className="card p-4">
         <h3 className="font-semibold text-base mb-4 flex items-center gap-2">
           <Award size={16} style={{ color: 'var(--color-warning)' }} />
-          Conquistas
+          {t('profile.achievements', 'Conquistas')}
         </h3>
         <div className="grid grid-cols-4 gap-2">
           {achievements.map((a, i) => (
@@ -190,8 +192,8 @@ export default function ProfilePage() {
               <User size={18} style={{ color: 'var(--color-primary-light)' }} />
             </div>
             <div>
-              <p className="font-medium text-sm">Dados da Conta</p>
-              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Email e preferências</p>
+              <p className="font-medium text-sm">{t('profile.accountData', 'Dados da Conta')}</p>
+              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.emailPrefs', 'Email e preferências')}</p>
             </div>
           </div>
           <ChevronRight size={18} style={{ color: 'var(--color-text-muted)' }} />
@@ -207,8 +209,8 @@ export default function ProfilePage() {
               <Zap size={18} style={{ color: 'var(--color-danger)' }} />
             </div>
             <div className="text-left">
-              <p className="font-medium text-sm" style={{ color: 'var(--color-danger)' }}>Sair da Conta</p>
-              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Encerrar sessão</p>
+              <p className="font-medium text-sm" style={{ color: 'var(--color-danger)' }}>{t('auth.logout', 'Sair da Conta')}</p>
+              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.logoutDesc', 'Encerrar sessão')}</p>
             </div>
           </div>
           <ChevronRight size={18} style={{ color: 'var(--color-danger)' }} />

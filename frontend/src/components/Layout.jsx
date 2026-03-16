@@ -4,18 +4,21 @@ import {
   Home, Receipt, Target, Store, User, 
   LogOut, Wallet, TrendingUp, Zap, Tag
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
+import LanguageSelector from './LanguageSelector';
 
 const navItems = [
-  { path: '/', icon: Home, label: 'Início' },
-  { path: '/transactions', icon: Receipt, label: 'Gastos' },
-  { path: '/categories', icon: Tag, label: 'Categorias' },
-  { path: '/goals', icon: Target, label: 'Metas' },
-  { path: '/store', icon: Store, label: 'Loja' },
-  { path: '/profile', icon: User, label: 'Perfil' },
+  { path: '/', icon: Home, labelKey: 'nav.dashboard' },
+  { path: '/transactions', icon: Receipt, labelKey: 'nav.transactions' },
+  { path: '/categories', icon: Tag, labelKey: 'nav.categories' },
+  { path: '/goals', icon: Target, labelKey: 'nav.goals' },
+  { path: '/store', icon: Store, labelKey: 'nav.store' },
+  { path: '/profile', icon: User, labelKey: 'nav.profile' },
 ];
 
 export default function Layout() {
+  const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const location = useLocation();
 
@@ -67,11 +70,12 @@ export default function Layout() {
                 </div>
               </div>
             )}
+            <LanguageSelector compact />
             <button 
               onClick={logout}
               className="icon-btn"
               style={{ width: 36, height: 36 }}
-              title="Sair"
+              title={t('auth.logout', 'Sair')}
             >
               <LogOut size={16} />
             </button>
@@ -93,8 +97,9 @@ export default function Layout() {
            }}>
         <div className="max-w-2xl mx-auto px-2 safe-bottom">
           <div className="flex items-center justify-around h-16">
-            {navItems.map(({ path, icon: Icon, label }) => {
+            {navItems.map(({ path, icon: Icon, labelKey }) => {
               const isActive = location.pathname === path;
+              const label = t(labelKey);
               return (
                 <Link 
                   key={path} 

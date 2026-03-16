@@ -11,6 +11,7 @@ Frontend for DotchFlow - a gamified interface for personal finance control.
 - **Goals** - Track your financial objectives
 - **Store** - Unlock items with your coins
 - **Profile** - Statistics and achievements
+- **Multi-language** - English, Spanish, Portuguese (BR) support
 
 ## Tech Stack
 
@@ -19,6 +20,7 @@ Frontend for DotchFlow - a gamified interface for personal finance control.
 - **Recharts** for charts
 - **Zustand** for global state
 - **Axios** for API
+- **react-i18next** for internationalization
 
 ## Installation
 
@@ -68,5 +70,6 @@ src/
 ├── components/   # Reusable components
 ├── pages/        # App pages
 ├── store/        # Global state (Zustand)
+├── i18n/         # Internationalization (locales)
 └── index.css    # Global styles
 ```

@@ -2,6 +2,7 @@
 const express = require('express');
 const { getDatabase, queryOne, execute } = require('../../infra/database/db');
 const { authMiddleware } = require('../middleware/auth');
+const { createTranslator } = require('../../i18n');
 
 const router = express.Router();
 
@@ -17,17 +18,18 @@ function calculateLevel(xp) {
 
 // POST /gamification/checkin
 router.post('/checkin', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const user = queryOne(db, 'SELECT * FROM users WHERE id = ?', [req.userId]);
-    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    if (!user) return res.status(404).json({ error: await translate('gamification.userNotFound') });
 
     const today = new Date().toISOString().split('T')[0];
     const lastCheckin = user.last_checkin;
 
     if (lastCheckin === today) {
       return res.status(400).json({
-        error: 'Já fez checkin hoje!',
+        error: await translate('gamification.alreadyCheckedIn'),
         next_checkin: today + ' 23:59:59'
       });
     }
@@ -48,6 +50,10 @@ router.post('/checkin', authMiddleware, async (req, res) => {
       [newXp, newCoins, newLevel, newStreak, today, req.userId]
     );
 
+    const message = newStreak > 1
+      ? await translate('gamification.streakBonus', { days: newStreak })
+      : await translate('gamification.checkinSuccess');
+
     res.json({
       success: true,
       xp_gained: xpGained,
@@ -57,18 +63,17 @@ router.post('/checkin', authMiddleware, async (req, res) => {
       dotch_coins: newCoins,
       level: newLevel,
       leveled_up: leveledUp,
-      message: newStreak > 1
-        ? `🔥 ${newStreak} dias seguidos! Bônus aplicado!`
-        : '✅ Checkin realizado! Boa sorte hoje!'
+      message
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('gamification.internalError') });
   }
 });
 
 // GET /gamification/status
 router.get('/status', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const user = queryOne(db, 
@@ -88,7 +93,7 @@ router.get('/status', authMiddleware, async (req, res) => {
       checked_in_today: user.last_checkin === today
     });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('gamification.internalError') });
   }
 });
 

@@ -20,6 +20,7 @@ const SCHEMA = `
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    language TEXT DEFAULT 'en',
     xp_points INTEGER DEFAULT 0,
     dotch_coins INTEGER DEFAULT 0,
     level INTEGER DEFAULT 1,
@@ -82,12 +83,12 @@ const SCHEMA = `
 `;
 
 const STORE_ITEMS = [
-  { item_name: 'Tema Dark Premium', description: 'Tema escuro elegante', icon: '🌙', cost: 100, required_level: 1, category: 'tema' },
-  { item_name: 'Tema Sunset', description: 'Tema com cores do pôr do sol', icon: '🌅', cost: 150, required_level: 3, category: 'tema' },
-  { item_name: 'Notificações Inteligentes', description: 'Receba alertas customizados', icon: '🔔', cost: 200, required_level: 5, category: 'funcionalidade' },
-  { item_name: 'Avatar Dourado', description: 'Destaque-se com estilo', icon: '👑', cost: 300, required_level: 7, category: 'avatar' },
-  { item_name: 'Modo Multi-Carteira', description: 'Gerencie múltiplas carteiras', icon: '💼', cost: 500, required_level: 10, category: 'funcionalidade' },
-  { item_name: 'Relatório Anual PDF', description: 'Exporte seus dados', icon: '📊', cost: 250, required_level: 5, category: 'funcionalidade' },
+  { item_name: 'Dark Theme Premium', description: 'Elegant dark theme', icon: '🌙', cost: 100, required_level: 1, category: 'theme' },
+  { item_name: 'Sunset Theme', description: 'Sunset colored theme', icon: '🌅', cost: 150, required_level: 3, category: 'theme' },
+  { item_name: 'Smart Notifications', description: 'Custom alerts', icon: '🔔', cost: 200, required_level: 5, category: 'feature' },
+  { item_name: 'Golden Avatar', description: 'Stand out with style', icon: '👑', cost: 300, required_level: 7, category: 'avatar' },
+  { item_name: 'Multi-Wallet Mode', description: 'Manage multiple wallets', icon: '💼', cost: 500, required_level: 10, category: 'feature' },
+  { item_name: 'Annual PDF Report', description: 'Export your data', icon: '📊', cost: 250, required_level: 5, category: 'feature' },
 ];
 
 async function ensureDatabase(SQL) {
@@ -145,8 +146,8 @@ async function seed() {
   const password_hash = await bcrypt.hash(TEST_USER.password, 10);
   
   db.run(
-    'INSERT INTO users (email, password_hash, xp_points, dotch_coins, level, streak_count) VALUES (?, ?, ?, ?, ?, ?)',
-    [TEST_USER.email, password_hash, 500, 250, 3, 5]
+    'INSERT INTO users (email, password_hash, language, xp_points, dotch_coins, level, streak_count) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [TEST_USER.email, password_hash, 'en', 500, 250, 3, 5]
   );
 
   const userId = db.exec('SELECT last_insert_rowid() as id')[0].values[0][0];
@@ -154,15 +155,15 @@ async function seed() {
 
   // Create default categories
   const categories = [
-    { name: 'Alimentação', icon: '🍔', limit: 800 },
-    { name: 'Transporte', icon: '🚗', limit: 300 },
-    { name: 'Moradia', icon: '🏠', limit: 1500 },
-    { name: 'Saúde', icon: '💊', limit: 200 },
-    { name: 'Lazer', icon: '🎮', limit: 400 },
-    { name: 'Educação', icon: '📚', limit: 250 },
-    { name: 'Salário', icon: '💰', limit: 0 },
+    { name: 'Food', icon: '🍔', limit: 800 },
+    { name: 'Transport', icon: '🚗', limit: 300 },
+    { name: 'Housing', icon: '🏠', limit: 1500 },
+    { name: 'Health', icon: '💊', limit: 200 },
+    { name: 'Entertainment', icon: '🎮', limit: 400 },
+    { name: 'Education', icon: '📚', limit: 250 },
+    { name: 'Salary', icon: '💰', limit: 0 },
     { name: 'Freelance', icon: '💻', limit: 0 },
-    { name: 'Investimentos', icon: '', limit: 0 },
+    { name: 'Investments', icon: '', limit: 0 },
   ];
 
   for (const cat of categories) {
@@ -175,22 +176,22 @@ async function seed() {
 
   // Create transactions (last 30 days)
   const transactions = [
-    { amount: 450, description: 'Supermercado', category: 'Alimentação', type: 'expense' },
-    { amount: 150, description: 'Uber', category: 'Transporte', type: 'expense' },
-    { amount: 1200, description: 'Aluguel', category: 'Moradia', type: 'expense' },
-    { amount: 80, description: 'Farmácia', category: 'Saúde', type: 'expense' },
-    { amount: 200, description: 'Netflix + Spotify', category: 'Lazer', type: 'expense' },
-    { amount: 120, description: 'Curso Udemy', category: 'Educação', type: 'expense' },
-    { amount: 8500, description: 'Salário Mensal', category: 'Salário', type: 'income' },
-    { amount: 320, description: 'Gasolina', category: 'Transporte', type: 'expense' },
-    { amount: 95, description: 'Restaurante', category: 'Alimentação', type: 'expense' },
-    { amount: 1800, description: 'Internet + Luz', category: 'Moradia', type: 'expense' },
-    { amount: 250, description: 'Academia', category: 'Saúde', type: 'expense' },
-    { amount: 60, description: 'Cinema', category: 'Lazer', type: 'expense' },
-    { amount: 1200, description: 'Projeto Freelance', category: 'Freelance', type: 'income' },
-    { amount: 45, description: 'Café com amigos', category: 'Lazer', type: 'expense' },
-    { amount: 350, description: 'Mercado', category: 'Alimentação', type: 'expense' },
-    { amount: 2000, description: 'Ações - Investimento', category: 'Investimentos', type: 'expense' },
+    { amount: 450, description: 'Supermarket', category: 'Food', type: 'expense' },
+    { amount: 150, description: 'Uber', category: 'Transport', type: 'expense' },
+    { amount: 1200, description: 'Rent', category: 'Housing', type: 'expense' },
+    { amount: 80, description: 'Pharmacy', category: 'Health', type: 'expense' },
+    { amount: 200, description: 'Netflix + Spotify', category: 'Entertainment', type: 'expense' },
+    { amount: 120, description: 'Udemy Course', category: 'Education', type: 'expense' },
+    { amount: 8500, description: 'Monthly Salary', category: 'Salary', type: 'income' },
+    { amount: 320, description: 'Gas', category: 'Transport', type: 'expense' },
+    { amount: 95, description: 'Restaurant', category: 'Food', type: 'expense' },
+    { amount: 1800, description: 'Internet + Utilities', category: 'Housing', type: 'expense' },
+    { amount: 250, description: 'Gym', category: 'Health', type: 'expense' },
+    { amount: 60, description: 'Cinema', category: 'Entertainment', type: 'expense' },
+    { amount: 1200, description: 'Freelance Project', category: 'Freelance', type: 'income' },
+    { amount: 45, description: 'Coffee with friends', category: 'Entertainment', type: 'expense' },
+    { amount: 350, description: 'Grocery', category: 'Food', type: 'expense' },
+    { amount: 2000, description: 'Stocks - Investment', category: 'Investments', type: 'expense' },
   ];
 
   const catMap = {};
@@ -219,9 +220,9 @@ async function seed() {
 
   // Create goals
   const goals = [
-    { name: 'Viagem para Fernando de Noronha', target: 5000, current: 2300, deadline: '2026-12-31' },
-    { name: 'Novo Notebook', target: 6000, current: 1500, deadline: '2026-09-30' },
-    { name: 'Reserva de Emergência', target: 10000, current: 4500, deadline: '2027-06-30' },
+    { name: 'Trip to Fernando de Noronha', target: 5000, current: 2300, deadline: '2026-12-31' },
+    { name: 'New Laptop', target: 6000, current: 1500, deadline: '2026-09-30' },
+    { name: 'Emergency Fund', target: 10000, current: 4500, deadline: '2027-06-30' },
   ];
 
   for (const g of goals) {
@@ -234,8 +235,8 @@ async function seed() {
 
   // Unlock some store items for the user
   const unlocks = [
-    { item: 'Tema Dark Premium', level: 1 },
-    { item: 'Notificações Inteligentes', level: 5 },
+    { item: 'Dark Theme Premium', level: 1 },
+    { item: 'Smart Notifications', level: 5 },
   ];
 
   const storeItems = db.exec('SELECT id, item_name FROM gamification_store');

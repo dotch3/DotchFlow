@@ -1,0 +1,54 @@
+{
+  "errors": {
+    "internal": "Error interno del servidor",
+    "invalidEmail": "Correo electrónico inválido",
+    "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+    "maxUsersReached": "Límite máximo de usuarios ({maxUsers}) alcanzado",
+    "emailAlreadyRegistered": "Correo electrónico ya registrado",
+    "invalidCredentials": "Credenciales inválidas",
+    "userNotFound": "Usuario no encontrado",
+    "invalidLanguage": "Idioma inválido. Valores permitidos: en, es, pt-BR",
+    "authTokenMissing": "Token de autenticación ausente",
+    "authTokenInvalid": "Token inválido o expirado",
+    "routeNotFound": "Ruta no encontrada"
+  },
+  "categories": {
+    "notFound": "Categoría no encontrada",
+    "nameRequired": "El nombre es obligatorio",
+    "internalError": "Error interno"
+  },
+  "transactions": {
+    "notFound": "Transacción no encontrada",
+    "internalError": "Error interno",
+    "invalidAmount": "El monto debe ser positivo",
+    "invalidType": "Tipo inválido"
+  },
+  "goals": {
+    "notFound": "Objetivo no encontrado",
+    "nameAndTargetRequired": "El nombre y el monto objetivo son obligatorios",
+    "invalidAmount": "Monto inválido",
+    "internalError": "Error interno"
+  },
+  "store": {
+    "itemRequired": "El artículo es obligatorio",
+    "itemNotFound": "Artículo no encontrado",
+    "itemAlreadyOwned": "Artículo ya desbloqueado",
+    "levelRequired": "Nivel {level} necesario",
+    "insufficientCoins": "DotchCoins insuficientes",
+    "internalError": "Error interno"
+  },
+  "admin": {
+    "cleanupError": "Error al hacer cleanup",
+    "statusError": "Error al obtener el estado"
+  },
+  "gamification": {
+    "userNotFound": "Usuario no encontrado",
+    "alreadyCheckedIn": "¡Ya hiciste check-in hoy!",
+    "checkinSuccess": "¡Check-in realizado! Buena suerte hoy!",
+    "streakBonus": "¡{{days}} días seguidos! ¡Bono aplicado!",
+    "internalError": "Error interno"
+  },
+  "finance": {
+    "internalError": "Error interno"
+  }
+}

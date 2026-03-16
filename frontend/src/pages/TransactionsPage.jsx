@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Trash2, Edit3, X, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
 
@@ -31,7 +32,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
       }
       onSaved();
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao salvar');
+      setError(err.response?.data?.error || t('errors.generic', 'Erro ao salvar'));
     }
     setLoading(false);
   };
@@ -41,7 +42,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-            {editTx ? 'Editar Transação' : 'Nova Transação'}
+            {editTx ? t('transactions.edit', 'Editar Transação') : t('transactions.add', 'Nova Transação')}
           </h2>
           <button 
             onClick={onClose} 
@@ -63,8 +64,8 @@ function TransactionModal({ onClose, onSaved, editTx }) {
           {/* Type Toggle */}
           <div className="flex rounded-2xl overflow-hidden" style={{ background: 'var(--color-bg-tertiary)' }}>
             {[
-              { value: 'income', label: 'Receita', icon: '↑', color: 'var(--color-accent)' },
-              { value: 'expense', label: 'Despesa', icon: '↓', color: 'var(--color-danger)' }
+              { value: 'income', label: t('transactions.income', 'Receita'), icon: '↑', color: 'var(--color-accent)' },
+              { value: 'expense', label: t('transactions.expense', 'Despesa'), icon: '↓', color: 'var(--color-danger)' }
             ].map(opt => (
               <button
                 key={opt.value}
@@ -86,7 +87,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
             <input
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Descrição (opcional)"
+              placeholder={t('transactions.descriptionPlaceholder', 'Descrição (opcional)')}
               className="input"
             />
           </div>
@@ -99,7 +100,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
               type="number"
               step="0.01"
               min="0.01"
-              placeholder="Valor (R$)"
+              placeholder={t('transactions.amountPlaceholder', 'Valor (R$)')}
               className="input"
             />
           </div>
@@ -121,7 +122,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
                 onChange={e => setCategoryId(e.target.value)}
                 className="input select"
               >
-                <option value="">Sem categoria</option>
+                <option value="">{t('transactions.noCategory', 'Sem categoria')}</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
                 ))}
@@ -134,7 +135,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
             disabled={loading}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Salvando...' : editTx ? 'Atualizar' : 'Adicionar Transação'}
+            {loading ? t('common.loading', 'Salvando...') : editTx ? t('common.update', 'Atualizar') : t('transactions.add', 'Adicionar Transação')}
           </button>
         </form>
       </div>
@@ -143,6 +144,7 @@ function TransactionModal({ onClose, onSaved, editTx }) {
 }
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +180,7 @@ export default function TransactionsPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Excluir transação?')) return;
+    if (!confirm(t('transactions.confirmDelete', 'Excluir transação?'))) return;
     await api.deleteTransaction(id);
     refreshUser();
     load();
@@ -188,9 +190,9 @@ export default function TransactionsPage() {
   const fmtDate = d => new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 
   const filterOptions = [
-    { value: 'all', label: 'Todos' },
-    { value: 'income', label: 'Receitas' },
-    { value: 'expense', label: 'Despesas' }
+    { value: 'all', label: t('common.all', 'Todos') },
+    { value: 'income', label: t('transactions.incomePlural', 'Receitas') },
+    { value: 'expense', label: t('transactions.expensePlural', 'Despesas') }
   ];
 
   return (
@@ -198,9 +200,9 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Transações</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('transactions.title', 'Transações')}</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-            Gerencie seus registros financeiros
+            {t('transactions.subtitle', 'Gerencie seus registros financeiros')}
           </p>
         </div>
         <button 
@@ -219,7 +221,7 @@ export default function TransactionsPage() {
           <input 
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar transações..."
+            placeholder={t('transactions.searchPlaceholder', 'Buscar transações...')}
             className="input pl-10"
           />
         </div>
@@ -246,10 +248,10 @@ export default function TransactionsPage() {
         <div className="empty-state">
           <div className="empty-state-icon">💸</div>
           <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Nenhuma transação encontrada
+            {t('transactions.noResults', 'Nenhuma transação encontrada')}
           </h3>
           <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-            Adicione sua primeira transação para começar
+            {t('transactions.addFirst', 'Adicione sua primeira transação para começar')}
           </p>
         </div>
       ) : (
@@ -278,7 +280,7 @@ export default function TransactionsPage() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">
-                  {tx.description || (tx.type === 'income' ? 'Receita' : 'Despesa')}
+                  {tx.description || (tx.type === 'income' ? t('transactions.income', 'Receita') : t('transactions.expense', 'Despesa'))}
                 </p>
                 <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
                   {fmtDate(tx.date)}

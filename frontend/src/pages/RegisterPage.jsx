@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Mail, Lock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { register, isLoading, error } = useAuthStore();
@@ -26,11 +28,11 @@ export default function RegisterPage() {
             <Zap size={32} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold gradient-text">DotchFlow</h1>
-          <p className="text-gray-400 mt-1 text-sm">Comece sua jornada financeira</p>
+          <p className="text-gray-400 mt-1 text-sm">{t('auth.registerSubtitle', 'Comece sua jornada financeira')}</p>
         </div>
 
         <div className="glass p-8">
-          <h2 className="text-xl font-bold mb-6">Criar conta</h2>
+          <h2 className="text-xl font-bold mb-6">{t('auth.register')}</h2>
 
           {error && (
             <div className="mb-4 p-3 rounded-lg text-sm text-red-400"
@@ -41,7 +43,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Email</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('auth.email')}</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
@@ -51,7 +53,7 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Senha</label>
+              <label className="block text-sm text-gray-400 mb-1">{t('auth.password')}</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
@@ -64,13 +66,13 @@ export default function RegisterPage() {
             <button type="submit" disabled={isLoading}
                     className="w-full py-3 rounded-xl font-semibold transition-all text-white"
                     style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', opacity: isLoading ? 0.7 : 1 }}>
-              {isLoading ? 'Criando conta...' : 'Começar minha jornada 🎮'}
+              {isLoading ? t('common.loading') : `${t('auth.startJourney', 'Começar minha jornada')} 🎮`}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-4">
-            Já tem conta?{' '}
-            <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium">Entrar</Link>
+            {t('auth.hasAccount')}{' '}
+            <Link to="/login" className="text-purple-400 hover:text-purple-300 font-medium">{t('auth.login')}</Link>
           </p>
         </div>
       </div>

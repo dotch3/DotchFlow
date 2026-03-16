@@ -54,6 +54,7 @@ function migrate(db) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
+      language TEXT DEFAULT 'en',
       xp_points INTEGER DEFAULT 0,
       dotch_coins INTEGER DEFAULT 0,
       level INTEGER DEFAULT 1,
@@ -62,6 +63,13 @@ function migrate(db) {
       created_at TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  // Add language column if it doesn't exist (for existing databases)
+  try {
+    db.run(`ALTER TABLE users ADD COLUMN language TEXT DEFAULT 'en'`);
+  } catch (e) {
+    // Column already exists, ignore
+  }
 
   db.run(`
     CREATE TABLE IF NOT EXISTS categories (

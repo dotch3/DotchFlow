@@ -1,6 +1,7 @@
 // src/store/authStore.js
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import * as api from '../api/client';
 
 const useAuthStore = create(persist(
@@ -16,9 +17,12 @@ const useAuthStore = create(persist(
         const data = await api.login(email, password);
         localStorage.setItem('dotchflow_token', data.token);
         set({ user: data.user, token: data.token, isLoading: false });
+        if (data.user?.language) {
+          i18n.changeLanguage(data.user.language);
+        }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || 'Erro ao fazer login';
+        const msg = err.response?.data?.error || i18n.t('auth.loginError', 'Erro ao fazer login');
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }
@@ -30,9 +34,12 @@ const useAuthStore = create(persist(
         const data = await api.register(email, password);
         localStorage.setItem('dotchflow_token', data.token);
         set({ user: data.user, token: data.token, isLoading: false });
+        if (data.user?.language) {
+          i18n.changeLanguage(data.user.language);
+        }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || 'Erro ao registrar';
+        const msg = err.response?.data?.error || i18n.t('auth.registerError', 'Erro ao registrar');
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }

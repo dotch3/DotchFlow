@@ -2,11 +2,13 @@
 const express = require('express');
 const { getDatabase, queryAll, queryOne, execute } = require('../../infra/database/db');
 const { authMiddleware } = require('../middleware/auth');
+const { createTranslator } = require('../../i18n');
 
 const router = express.Router();
 
 // GET /categories
 router.get('/', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const categories = queryAll(db, 'SELECT * FROM categories WHERE user_id = ?', [req.userId]);
@@ -30,16 +32,17 @@ router.get('/', authMiddleware, async (req, res) => {
 
     res.json({ categories: enriched });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('categories.internalError') });
   }
 });
 
 // POST /categories
 router.post('/', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const { name, icon = '📁', monthly_limit = 0 } = req.body;
-    if (!name) return res.status(400).json({ error: 'Nome obrigatório' });
+    if (!name) return res.status(400).json({ error: await translate('categories.nameRequired') });
 
     const { lastInsertRowId } = execute(db,
       'INSERT INTO categories (user_id, name, icon, monthly_limit) VALUES (?, ?, ?, ?)',
@@ -48,16 +51,17 @@ router.post('/', authMiddleware, async (req, res) => {
     const cat = queryOne(db, 'SELECT * FROM categories WHERE id = ?', [lastInsertRowId]);
     res.status(201).json({ category: cat });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('categories.internalError') });
   }
 });
 
 // PUT /categories/:id
 router.put('/:id', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const cat = queryOne(db, 'SELECT * FROM categories WHERE id=? AND user_id=?', [req.params.id, req.userId]);
-    if (!cat) return res.status(404).json({ error: 'Categoria não encontrada' });
+    if (!cat) return res.status(404).json({ error: await translate('categories.notFound') });
     const { name, icon, monthly_limit } = req.body;
     execute(db,
       'UPDATE categories SET name=COALESCE(?,name), icon=COALESCE(?,icon), monthly_limit=COALESCE(?,monthly_limit) WHERE id=?',
@@ -66,20 +70,21 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const updated = queryOne(db, 'SELECT * FROM categories WHERE id = ?', [req.params.id]);
     res.json({ category: updated });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('categories.internalError') });
   }
 });
 
 // DELETE /categories/:id
 router.delete('/:id', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const cat = queryOne(db, 'SELECT id FROM categories WHERE id=? AND user_id=?', [req.params.id, req.userId]);
-    if (!cat) return res.status(404).json({ error: 'Categoria não encontrada' });
+    if (!cat) return res.status(404).json({ error: await translate('categories.notFound') });
     execute(db, 'DELETE FROM categories WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('categories.internalError') });
   }
 });
 

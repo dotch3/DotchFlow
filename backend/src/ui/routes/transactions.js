@@ -3,6 +3,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { getDatabase, queryAll, queryOne, execute } = require('../../infra/database/db');
 const { authMiddleware } = require('../middleware/auth');
+const { createTranslator } = require('../../i18n');
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ const XP_PER_TRANSACTION = 10;
 
 // GET /transactions
 router.get('/', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const { category_id, type, start_date, end_date, search, limit = 50, offset = 0 } = req.query;
@@ -45,7 +47,7 @@ router.get('/', authMiddleware, async (req, res) => {
     res.json({ transactions, totals, balance: totals.income - totals.expense });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('transactions.internalError') });
   }
 });
 
@@ -53,10 +55,11 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/',
   authMiddleware,
   [
-    body('amount').isFloat({ min: 0.01 }).withMessage('Valor deve ser positivo'),
-    body('type').isIn(['income', 'expense']).withMessage('Tipo inválido'),
+    body('amount').isFloat({ min: 0.01 }).withMessage('transactions.invalidAmount'),
+    body('type').isIn(['income', 'expense']).withMessage('transactions.invalidType'),
   ],
   async (req, res) => {
+    const translate = await createTranslator(req);
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
@@ -84,17 +87,18 @@ router.post('/',
       res.status(201).json({ transaction: tx, xp_gained: XP_PER_TRANSACTION });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Erro interno' });
+      res.status(500).json({ error: await translate('transactions.internalError') });
     }
   }
 );
 
 // PUT /transactions/:id
 router.put('/:id', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const tx = queryOne(db, 'SELECT * FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
-    if (!tx) return res.status(404).json({ error: 'Transação não encontrada' });
+    if (!tx) return res.status(404).json({ error: await translate('transactions.notFound') });
 
     const { amount, description, category_id, date, type, is_recurring } = req.body;
     execute(db,
@@ -108,20 +112,21 @@ router.put('/:id', authMiddleware, async (req, res) => {
     );
     res.json({ transaction: updated });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('transactions.internalError') });
   }
 });
 
 // DELETE /transactions/:id
 router.delete('/:id', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const tx = queryOne(db, 'SELECT id FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
-    if (!tx) return res.status(404).json({ error: 'Transação não encontrada' });
+    if (!tx) return res.status(404).json({ error: await translate('transactions.notFound') });
     execute(db, 'DELETE FROM transactions WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('transactions.internalError') });
   }
 });
 

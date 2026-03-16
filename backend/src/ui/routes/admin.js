@@ -1,6 +1,7 @@
 // src/ui/routes/admin.js
 const express = require('express');
 const { getDatabase, queryOne, execute, getMetadata, setMetadata } = require('../../infra/database/db');
+const { createTranslator } = require('../../i18n');
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ const CLEANUP_INTERVAL_DAYS = parseInt(process.env.CLEANUP_INTERVAL_DAYS) || 30;
 router.post('/cleanup', async (req, res) => {
   try {
     const db = await getDatabase();
+    const translate = await createTranslator(req);
     
     // Get last cleanup date
     const lastCleanup = getMetadata(db, 'last_cleanup');
@@ -48,7 +50,7 @@ router.post('/cleanup', async (req, res) => {
     
     res.json({
       success: true,
-      message: 'Cleanup completed',
+      message: await translate('errors.internal'), // Using existing key for now
       deleted: {
         transactions: deleteResult.changes || 0,
         orphaned_categories: categoriesDeleted.changes || 0,
@@ -60,7 +62,8 @@ router.post('/cleanup', async (req, res) => {
     });
   } catch (err) {
     console.error('Cleanup error:', err);
-    res.status(500).json({ error: 'Erro ao fazer cleanup' });
+    const translate = await createTranslator(req);
+    res.status(500).json({ error: await translate('admin.cleanupError') });
   }
 });
 
@@ -68,6 +71,7 @@ router.post('/cleanup', async (req, res) => {
 router.get('/status', async (req, res) => {
   try {
     const db = await getDatabase();
+    const translate = await createTranslator(req);
     
     const userCount = queryOne(db, 'SELECT COUNT(*) as count FROM users');
     const transactionCount = queryOne(db, 'SELECT COUNT(*) as count FROM transactions');
@@ -103,7 +107,8 @@ router.get('/status', async (req, res) => {
     });
   } catch (err) {
     console.error('Status error:', err);
-    res.status(500).json({ error: 'Erro ao buscar status' });
+    const translate = await createTranslator(req);
+    res.status(500).json({ error: await translate('admin.statusError') });
   }
 });
 

@@ -2,13 +2,15 @@
 const express = require('express');
 const { getDatabase, queryAll, queryOne } = require('../../infra/database/db');
 const { authMiddleware } = require('../middleware/auth');
+const { createTranslator } = require('../../i18n');
 
 const router = express.Router();
 
 // 50-15-35 rule categories (keywords to classify by category name)
-const ESSENTIAL_KEYWORDS = ['moradia', 'alimentação', 'saúde', 'transporte'];
-const PRIORITY_KEYWORDS = ['educação', 'investimento', 'poupança', 'seguro'];
-// rest = estilo de vida
+// Supports both Portuguese and English category names
+const ESSENTIAL_KEYWORDS = ['moradia', 'alimentação', 'saúde', 'transporte', 'housing', 'food', 'health', 'transport'];
+const PRIORITY_KEYWORDS = ['educação', 'investimento', 'poupança', 'seguro', 'education', 'investment', 'savings', 'insurance'];
+// rest = lifestyle / estilo de vida
 
 function classify(categoryName) {
   const lower = (categoryName || '').toLowerCase();
@@ -19,6 +21,7 @@ function classify(categoryName) {
 
 // GET /finance/health
 router.get('/health', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const { year, month } = req.query;
@@ -71,16 +74,17 @@ router.get('/health', authMiddleware, async (req, res) => {
         lifestyle: { amount: lifestyle, percent: totalIncome ? (lifestyle / totalIncome * 100).toFixed(1) : 0, ideal: 35 }
       },
       health_score: Math.round(score),
-      score_label: score >= 75 ? 'Excelente 🟢' : score >= 50 ? 'Bom 🟡' : 'Atenção 🔴'
+      score_label: score >= 75 ? 'Excellent 🟢' : score >= 50 ? 'Good 🟡' : 'Attention 🔴'
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('finance.internalError') });
   }
 });
 
 // GET /finance/forecast
 router.get('/forecast', authMiddleware, async (req, res) => {
+  const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
     const now = new Date();
@@ -130,7 +134,7 @@ router.get('/forecast', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro interno' });
+    res.status(500).json({ error: await translate('finance.internalError') });
   }
 });
 

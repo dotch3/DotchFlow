@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -48,14 +50,14 @@ export default function LoginPage() {
             DotchFlow
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            Seu dinheiro, seu jogo.
+            {t('auth.loginSubtitle', 'Seu dinheiro, seu jogo.')}
           </p>
         </div>
 
         {/* Card */}
         <div className="card p-6">
           <h2 className="text-xl font-semibold mb-6" style={{ fontFamily: 'var(--font-display)' }}>
-            Entrar
+            {t('auth.login')}
           </h2>
 
           {error && (
@@ -77,7 +79,7 @@ export default function LoginPage() {
                 className="block text-xs font-medium mb-2" 
                 style={{ color: 'var(--color-text-tertiary)' }}
               >
-                Email
+                {t('auth.email')}
               </label>
               <div className="relative">
                 <Mail 
@@ -101,7 +103,7 @@ export default function LoginPage() {
                 className="block text-xs font-medium mb-2" 
                 style={{ color: 'var(--color-text-tertiary)' }}
               >
-                Senha
+                {t('auth.password')}
               </label>
               <div className="relative">
                 <Lock 
@@ -133,18 +135,18 @@ export default function LoginPage() {
               disabled={isLoading}
               className="btn btn-primary w-full"
             >
-              {isLoading ? 'Entrando...' : 'Entrar'}
+              {isLoading ? t('common.loading') : t('auth.login')}
             </button>
           </form>
 
           <p className="text-center text-sm mt-5" style={{ color: 'var(--color-text-tertiary)' }}>
-            Não tem conta?{' '}
+            {t('auth.noAccount')}{' '}
             <Link 
               to="/register" 
               className="font-medium transition-colors hover-lift"
               style={{ color: 'var(--color-primary-light)' }}
             >
-              Criar agora
+              {t('auth.createAccount')}
             </Link>
           </p>
         </div>

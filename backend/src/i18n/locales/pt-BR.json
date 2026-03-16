@@ -1,0 +1,54 @@
+{
+  "errors": {
+    "internal": "Erro interno do servidor",
+    "invalidEmail": "Email inválido",
+    "passwordMinLength": "Senha deve ter ao menos 6 caracteres",
+    "maxUsersReached": "Limite máximo de usuários ({maxUsers}) atingido",
+    "emailAlreadyRegistered": "Email já cadastrado",
+    "invalidCredentials": "Credenciais inválidas",
+    "userNotFound": "Usuário não encontrado",
+    "invalidLanguage": "Idioma inválido. Valores permitidos: en, es, pt-BR",
+    "authTokenMissing": "Token de autenticação ausente",
+    "authTokenInvalid": "Token inválido ou expirado",
+    "routeNotFound": "Rota não encontrada"
+  },
+  "categories": {
+    "notFound": "Categoria não encontrada",
+    "nameRequired": "Nome obrigatório",
+    "internalError": "Erro interno"
+  },
+  "transactions": {
+    "notFound": "Transação não encontrada",
+    "internalError": "Erro interno",
+    "invalidAmount": "Valor deve ser positivo",
+    "invalidType": "Tipo inválido"
+  },
+  "goals": {
+    "notFound": "Objetivo não encontrado",
+    "nameAndTargetRequired": "Nome e valor alvo são obrigatórios",
+    "invalidAmount": "Valor inválido",
+    "internalError": "Erro interno"
+  },
+  "store": {
+    "itemRequired": "Item obrigatório",
+    "itemNotFound": "Item não encontrado",
+    "itemAlreadyOwned": "Item já desbloqueado",
+    "levelRequired": "Nível {level} necessário",
+    "insufficientCoins": "DotchCoins insuficientes",
+    "internalError": "Erro interno"
+  },
+  "admin": {
+    "cleanupError": "Erro ao fazer cleanup",
+    "statusError": "Erro ao buscar status"
+  },
+  "gamification": {
+    "userNotFound": "Usuário não encontrado",
+    "alreadyCheckedIn": "Já fez checkin hoje!",
+    "checkinSuccess": "Checkin realizado! Boa sorte hoje!",
+    "streakBonus": "{{days}} dias seguidos! Bônus aplicado!",
+    "internalError": "Erro interno"
+  },
+  "finance": {
+    "internalError": "Erro interno"
+  }
+}

@@ -1,6 +1,7 @@
 // src/pages/StorePage.jsx
 import { useState, useEffect } from 'react';
 import { Store, Lock, Check, Sparkles, Crown, Star, Gem } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
 
@@ -43,6 +44,7 @@ const RARITY_ICONS = {
 };
 
 export default function StorePage() {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unlocking, setUnlocking] = useState(null);
@@ -63,19 +65,19 @@ export default function StorePage() {
   const handleUnlock = async (item) => {
     if (item.is_unlocked) return;
     if (user.dotch_coins < item.price) {
-      setMsg({ type: 'error', text: `Você precisa de ${item.price} coins mas tem apenas ${user.dotch_coins}` });
+      setMsg({ type: 'error', text: `${t('store.needCoins', 'Você precisa de')} ${item.price} ${t('store.coins', 'coins')} ${t('store.butHave', 'mas tem apenas')} ${user.dotch_coins}` });
       setTimeout(() => setMsg(null), 3000);
       return;
     }
     setUnlocking(item.id);
     try {
       const r = await api.unlockItem(item.id);
-      setMsg({ type: 'success', text: r.message || 'Item desbloqueado!' });
+      setMsg({ type: 'success', text: r.message || t('store.unlocked', 'Item desbloqueado!') });
       refreshUser();
       load();
       setTimeout(() => setMsg(null), 4000);
     } catch (err) {
-      setMsg({ type: 'error', text: err.response?.data?.error || 'Erro ao desbloquear' });
+      setMsg({ type: 'error', text: err.response?.data?.error || t('errors.generic', 'Erro ao desbloquear') });
       setTimeout(() => setMsg(null), 3000);
     }
     setUnlocking(null);
@@ -89,19 +91,19 @@ export default function StorePage() {
   }, {});
 
   const typeLabels = { 
-    theme: '🎨 Temas', 
-    badge: '🏅 Emblemas', 
-    avatar_frame: '🖼️ Molduras', 
-    others: '⭐ Outros' 
+    theme: t('store.themes', '🎨 Temas'), 
+    badge: t('store.badges', '🏅 Emblemas'), 
+    avatar_frame: t('store.frames', '🖼️ Molduras'), 
+    others: t('store.others', '⭐ Outros') 
   };
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="pt-2 fade-in-up">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Loja</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('store.title', 'Loja')}</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-          Use suas coins para desbloquear itens
+          {t('store.subtitle', 'Use suas coins para desbloquear itens')}
         </p>
       </div>
 
@@ -113,14 +115,14 @@ export default function StorePage() {
             <Gem size={24} className="text-white" />
           </div>
           <div>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Seu saldo</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('store.yourBalance', 'Seu saldo')}</p>
             <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>
               {user?.dotch_coins || 0}
             </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>coins</p>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('store.coins', 'coins')}</p>
         </div>
       </div>
 

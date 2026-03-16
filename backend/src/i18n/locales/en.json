@@ -1,0 +1,54 @@
+{
+  "errors": {
+    "internal": "Internal server error",
+    "invalidEmail": "Invalid email",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "maxUsersReached": "Maximum user limit ({maxUsers}) reached",
+    "emailAlreadyRegistered": "Email already registered",
+    "invalidCredentials": "Invalid credentials",
+    "userNotFound": "User not found",
+    "invalidLanguage": "Invalid language. Allowed values: en, es, pt-BR",
+    "authTokenMissing": "Authentication token missing",
+    "authTokenInvalid": "Invalid or expired token",
+    "routeNotFound": "Route not found"
+  },
+  "categories": {
+    "notFound": "Category not found",
+    "nameRequired": "Name is required",
+    "internalError": "Internal error"
+  },
+  "transactions": {
+    "notFound": "Transaction not found",
+    "internalError": "Internal error",
+    "invalidAmount": "Amount must be positive",
+    "invalidType": "Invalid type"
+  },
+  "goals": {
+    "notFound": "Goal not found",
+    "nameAndTargetRequired": "Name and target amount are required",
+    "invalidAmount": "Invalid amount",
+    "internalError": "Internal error"
+  },
+  "store": {
+    "itemRequired": "Item is required",
+    "itemNotFound": "Item not found",
+    "itemAlreadyOwned": "Item already unlocked",
+    "levelRequired": "Level {level} required",
+    "insufficientCoins": "Insufficient DotchCoins",
+    "internalError": "Internal error"
+  },
+  "admin": {
+    "cleanupError": "Error during cleanup",
+    "statusError": "Error fetching status"
+  },
+  "gamification": {
+    "userNotFound": "User not found",
+    "alreadyCheckedIn": "Already checked in today!",
+    "checkinSuccess": "Checkin done! Good luck today!",
+    "streakBonus": "{{days}} days in a row! Bonus applied!",
+    "internalError": "Internal error"
+  },
+  "finance": {
+    "internalError": "Internal error"
+  }
+}

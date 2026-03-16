@@ -1,6 +1,7 @@
 // src/pages/CategoriesPage.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, Edit3, X, Tag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
 
@@ -12,7 +13,7 @@ const EMOJI_OPTIONS = [
   '🐕', '🌿', '⚡', '💵', '📈', '🏦', '🎪', '🌴'
 ];
 
-function CategoryModal({ onClose, onSaved, editCategory }) {
+function CategoryModal({ onClose, onSaved, editCategory, t }) {
   const [name, setName] = useState(editCategory?.name || '');
   const [icon, setIcon] = useState(editCategory?.icon || '📁');
   const [monthlyLimit, setMonthlyLimit] = useState(editCategory?.monthly_limit?.toString() || '0');
@@ -37,7 +38,7 @@ function CategoryModal({ onClose, onSaved, editCategory }) {
       }
       onSaved();
     } catch (err) {
-      setError(err.response?.data?.error || 'Erro ao salvar');
+      setError(err.response?.data?.error || t('errors.generic', 'Erro ao salvar'));
     }
     setLoading(false);
   };
@@ -154,6 +155,7 @@ function CategoryModal({ onClose, onSaved, editCategory }) {
 }
 
 export default function CategoriesPage() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -196,7 +198,7 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Categorias</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('categories.title', 'Categorias')}</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
             Organize suas categorias de gastos
           </p>
@@ -324,6 +326,7 @@ export default function CategoriesPage() {
           editCategory={editCategory}
           onClose={() => { setShowModal(false); setEditCategory(null); }}
           onSaved={() => { setShowModal(false); setEditCategory(null); refreshUser(); load(); }}
+          t={t}
         />
       )}
     </div>
