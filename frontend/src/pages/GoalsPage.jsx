@@ -21,8 +21,8 @@ function GoalCard({ goal, onDeposit, fmtBRL, t }) {
             <p className="font-semibold text-base">{goal.name}</p>
             <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
               {goal.deadline 
-                ? `${t('goals.deadline', 'Prazo')}: ${new Date(goal.deadline + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}`
-                : t('goals.noDeadline', 'Sem prazo definido')}
+                ? `${t('goals.deadline', 'Deadline')}: ${new Date(goal.deadline + 'T12:00:00').toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                : t('goals.noDeadline', 'No deadline')}
             </p>
           </div>
         </div>
@@ -51,12 +51,12 @@ function GoalCard({ goal, onDeposit, fmtBRL, t }) {
           </p>
           {goal.monthly_needed && !isComplete && (
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-              {fmtBRL(goal.monthly_needed)}{t('goals.perMonth', '/mês')}
+              {fmtBRL(goal.monthly_needed)}{t('goals.perMonth', '/month')}
             </p>
           )}
         </div>
-        {isComplete ? (
-          <span className="badge badge-success">{t('goals.completed', 'Concluído!')}</span>
+          {isComplete ? (
+            <span className="badge badge-success">{t('goals.completed', 'Completed!')}</span>
         ) : (
           <button 
             onClick={() => onDeposit(goal)}
@@ -95,7 +95,7 @@ function CreateGoalModal({ onClose, onSaved, t }) {
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-            {t('goals.add', 'Nova Meta')}
+            {t('goals.add', 'Add Goal')}
           </h2>
           <button onClick={onClose} className="icon-btn" style={{ width: 32, height: 32 }}>
             <X size={16} />
@@ -105,7 +105,7 @@ function CreateGoalModal({ onClose, onSaved, t }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-medium mb-2 block" style={{ color: 'var(--color-text-tertiary)' }}>
-              {t('categories.icon', 'Ícone')}
+              {t('categories.icon', 'Icon')}
             </label>
             <div className="flex flex-wrap gap-2">
               {emojis.map(e => (
@@ -130,7 +130,7 @@ function CreateGoalModal({ onClose, onSaved, t }) {
               value={name}
               onChange={e => setName(e.target.value)}
               required
-              placeholder={t('goals.namePlaceholder', 'Nome da meta')}
+              placeholder={t('goals.namePlaceholder', 'Goal name')}
               className="input"
             />
           </div>
@@ -143,7 +143,7 @@ function CreateGoalModal({ onClose, onSaved, t }) {
               type="number"
               min="1"
               step="0.01"
-              placeholder={t('goals.targetAmountPlaceholder', 'Valor da meta (R$)')}
+              placeholder={t('goals.targetAmountPlaceholder', 'Target amount ($)')}
               className="input"
             />
           </div>
@@ -159,7 +159,7 @@ function CreateGoalModal({ onClose, onSaved, t }) {
           </div>
           
           <button type="submit" disabled={loading} className="btn btn-primary w-full">
-            {loading ? t('common.loading', 'Criando...') : `🎯 ${t('goals.createGoal', 'Criar Meta')}`}
+            {loading ? t('common.loading', 'Creating...') : `🎯 ${t('goals.createGoal', 'Create Goal')}`}
           </button>
         </form>
       </div>
@@ -198,7 +198,7 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL, t }) {
         </div>
         
         <div className="p-3 rounded-xl mb-4" style={{ background: 'var(--color-bg-tertiary)' }}>
-          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.remaining', 'Falta para completar')}</p>
+          <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.remaining', 'Remaining')}</p>
           <p className="text-xl font-bold" style={{ color: 'var(--color-primary-light)' }}>
             {fmtBRL(remaining)}
           </p>
@@ -217,7 +217,7 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL, t }) {
                 color: amount === val.toString() ? 'var(--color-primary-light)' : 'var(--color-text-tertiary)'
               }}
             >
-              R$ {val}
+              $ {val}
             </button>
           ))}
         </div>
@@ -230,12 +230,12 @@ function DepositModal({ goal, onClose, onSaved, fmtBRL, t }) {
             type="number"
             min="0.01"
             step="0.01"
-            placeholder={t('goals.depositPlaceholder', 'Valor a depositar (R$)')}
+            placeholder={t('goals.depositPlaceholder', 'Amount to deposit ($)')}
             className="input"
           />
           
           <button type="submit" disabled={loading} className="btn btn-primary w-full">
-            {loading ? t('goals.depositing', 'Depositando...') : `💰 ${t('goals.deposit', 'Depositar')}`}
+            {loading ? t('goals.depositing', 'Depositing...') : `💰 ${t('goals.deposit', 'Deposit')}`}
           </button>
         </form>
       </div>
@@ -262,7 +262,7 @@ export default function GoalsPage() {
 
   useEffect(() => { load(); }, []);
 
-  const fmtBRL = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+  const fmtBRL = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v || 0);
 
   const activeGoals = goals.filter(g => g.status !== 'concluido');
   const completedGoals = goals.filter(g => g.status === 'concluido');
@@ -272,14 +272,14 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('goals.title', 'Metas')}</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('goals.title', 'Goals')}</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-            {t('goals.subtitle', 'Acompanhe seus objetivos financeiros')}
+            {t('goals.subtitle', 'Track your financial goals')}
           </p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn btn-primary">
           <Plus size={16} />
-          <span className="hidden sm:inline">{t('common.add', 'Nova')}</span>
+          <span className="hidden sm:inline">{t('common.add', 'New')}</span>
         </button>
       </div>
 
@@ -288,14 +288,14 @@ export default function GoalsPage() {
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Target size={16} style={{ color: 'var(--color-primary-light)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.active', 'Ativas')}</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.active', 'Active')}</span>
           </div>
           <p className="text-2xl font-bold">{activeGoals.length}</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center gap-2 mb-2">
             <PiggyBank size={16} style={{ color: 'var(--color-accent)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.completedPlural', 'Concluídas')}</span>
+            <span className="text-xs font-medium" style={{ color: 'var(--color-text-tertiary)' }}>{t('goals.completedPlural', 'Completed')}</span>
           </div>
           <p className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>{completedGoals.length}</p>
         </div>
@@ -310,14 +310,14 @@ export default function GoalsPage() {
         <div className="empty-state">
           <div className="empty-state-icon">🎯</div>
           <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            {t('goals.noGoals', 'Nenhuma meta ainda')}
+            {t('goals.noGoals', 'No goals yet')}
           </h3>
           <p className="text-sm mb-4" style={{ color: 'var(--color-text-tertiary)' }}>
-            {t('goals.createFirst', 'Crie sua primeira meta e comece a poupar!')}
+            {t('goals.createFirst', 'Create your first goal and start saving!')}
           </p>
           <button onClick={() => setShowCreate(true)} className="btn btn-primary">
             <Plus size={16} />
-            {t('goals.add', 'Criar Meta')}
+            {t('goals.add', 'Add Goal')}
           </button>
         </div>
       ) : (

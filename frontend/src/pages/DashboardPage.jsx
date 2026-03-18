@@ -38,7 +38,7 @@ function StatCard({ icon: Icon, label, value, sub, color, trend }) {
   );
 }
 
-function XPBar({ xp_progress, xp_to_next_level, level }) {
+function XPBar({ t, xp_progress, xp_to_next_level, level }) {
   const pct = Math.min(100, Math.round((xp_progress / xp_to_next_level) * 100));
   return (
     <div className="card p-4">
@@ -50,7 +50,7 @@ function XPBar({ xp_progress, xp_to_next_level, level }) {
           </div>
           <div>
             <span className="font-semibold text-sm">{t('profile.level')} {level}</span>
-            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('dashboard.levelProgress', 'Progresso até o próximo nível')}</p>
+            <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('dashboard.levelProgress', 'Progress to next level')}</p>
           </div>
         </div>
         <span className="text-sm font-medium" style={{ color: 'var(--color-primary-light)' }}>{pct}%</span>
@@ -70,21 +70,21 @@ function HealthScore({ health, t }) {
   if (!health) return null;
   
   const data = [
-    { name: t('dashboard.essential', 'Essencial'), value: parseFloat(health.breakdown?.essential?.percent || 0), color: COLORS.essential },
-    { name: t('dashboard.priority', 'Prioridade'), value: parseFloat(health.breakdown?.priority?.percent || 0), color: COLORS.priority },
-    { name: t('dashboard.lifestyle', 'Estilo'), value: parseFloat(health.breakdown?.lifestyle?.percent || 0), color: COLORS.lifestyle },
+    { name: t('dashboard.essential', 'Essential'), value: parseFloat(health.breakdown?.essential?.percent || 0), color: COLORS.essential },
+    { name: t('dashboard.priority', 'Priority'), value: parseFloat(health.breakdown?.priority?.percent || 0), color: COLORS.priority },
+    { name: t('dashboard.lifestyle', 'Lifestyle'), value: parseFloat(health.breakdown?.lifestyle?.percent || 0), color: COLORS.lifestyle },
   ].filter(d => d.value > 0);
 
   const scoreColor = health.health_score >= 75 ? 'var(--color-accent)' : 
                      health.health_score >= 50 ? 'var(--color-warning)' : 'var(--color-danger)';
   
-  const scoreLabel = health.health_score >= 75 ? t('dashboard.excellent', 'Excelente') : 
-                     health.health_score >= 50 ? t('dashboard.good', 'Bom') : t('dashboard.attention', 'Atenção');
+  const scoreLabel = health.health_score >= 75 ? t('dashboard.excellent', 'Excellent') : 
+                     health.health_score >= 50 ? t('dashboard.good', 'Good') : t('dashboard.attention', 'Needs Attention');
 
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-base">{t('dashboard.financialHealth', 'Saúde Financeira')}</h3>
+        <h3 className="font-semibold text-base">{t('dashboard.financialHealth', 'Financial Health')}</h3>
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold" style={{ color: scoreColor }}>{health.health_score}</span>
           <span className="text-xs" style={{ color: scoreColor }}>/100</span>
@@ -141,12 +141,12 @@ function ForecastChart({ forecast, t }) {
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-base">{t('dashboard.30dayForecast', 'Projeção 30 dias')}</h3>
+        <h3 className="font-semibold text-base">{t('dashboard.30dayForecast', '30-day Forecast')}</h3>
         <div className="text-right">
           <p className="text-sm font-medium" style={{ color: isPositive ? 'var(--color-accent)' : 'var(--color-danger)' }}>
             {fmtBRL(forecast.projected_end_of_month)}
           </p>
-          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('dashboard.endOfMonth', 'fim do mês')}</p>
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('dashboard.endOfMonth', 'end of month')}</p>
         </div>
       </div>
       
@@ -167,7 +167,7 @@ function ForecastChart({ forecast, t }) {
           />
           <YAxis 
             tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} 
-            tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`}
+            tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`}
             axisLine={false}
             tickLine={false}
             width={45}
@@ -179,7 +179,7 @@ function ForecastChart({ forecast, t }) {
               borderRadius: 12,
               fontSize: 12
             }}
-            formatter={(v) => [fmtBRL(v), 'Saldo']}
+            formatter={(v) => [fmtBRL(v), t('dashboard.balance', 'Balance')]}
           />
           <Area 
             type="monotone" 
@@ -206,7 +206,7 @@ function QuickActions({ t }) {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-accent-muted)' }}>
           <TrendingUp size={18} className="text-emerald-400" />
         </div>
-        <span className="text-xs font-medium">{t('transactions.income', 'Receita')}</span>
+        <span className="text-xs font-medium">{t('transactions.income', 'Income')}</span>
       </button>
       <button 
         className="card p-3 flex flex-col items-center gap-2 hover-lift"
@@ -215,7 +215,7 @@ function QuickActions({ t }) {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-danger-muted)' }}>
           <TrendingDown size={18} className="text-red-400" />
         </div>
-        <span className="text-xs font-medium">{t('transactions.expense', 'Despesa')}</span>
+        <span className="text-xs font-medium">{t('transactions.expense', 'Expense')}</span>
       </button>
       <button 
         className="card p-3 flex flex-col items-center gap-2 hover-lift"
@@ -224,7 +224,7 @@ function QuickActions({ t }) {
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-primary-muted)' }}>
           <Target size={18} className="text-indigo-400" />
         </div>
-        <span className="text-xs font-medium">{t('goals.title', 'Meta')}</span>
+        <span className="text-xs font-medium">{t('goals.title', 'Goal')}</span>
       </button>
     </div>
   );
@@ -268,7 +268,7 @@ export default function DashboardPage() {
       refreshUser();
       setTimeout(() => setCheckinMsg(null), 4000);
     } catch (err) {
-      setCheckinMsg(err.response?.data?.error || t('common.error', 'Erro'));
+      setCheckinMsg(err.response?.data?.error || t('common.error', 'Error'));
       setTimeout(() => setCheckinMsg(null), 3000);
     }
     setCheckinLoading(false);
@@ -276,7 +276,7 @@ export default function DashboardPage() {
 
   const fmtBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
 
-  const userName = user?.email?.split('@')[0] || 'Usuário';
+  const userName = user?.email?.split('@')[0] || t('dashboard.defaultUser', 'User');
 
   return (
     <div className="space-y-5">
@@ -284,17 +284,17 @@ export default function DashboardPage() {
       <div className="pt-2 fade-in-up flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            {t('dashboard.hello', 'Olá')}, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
+            {t('dashboard.hello', 'Hello')}, <span style={{ color: 'var(--color-primary-light)' }}>{userName}</span> 👋
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            {t('dashboard.keepGoing', 'Continue assim! Você está no caminho certo.')}
+            {t('dashboard.keepGoing', 'Keep going! You\'re on the right track.')}
           </p>
         </div>
         <button 
           onClick={() => setShowHelp(true)}
           className="p-2 rounded-xl hover-lift"
           style={{ background: 'var(--color-bg-tertiary)' }}
-          title={t('dashboard.help', 'Ajuda')}
+          title={t('dashboard.help', 'Help')}
         >
           <HelpCircle size={20} style={{ color: 'var(--color-text-secondary)' }} />
         </button>
@@ -306,7 +306,7 @@ export default function DashboardPage() {
           <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-                {t('dashboard.howItWorks', 'Como Funciona')}
+                {t('dashboard.howItWorks', 'How It Works')}
               </h2>
               <button onClick={() => setShowHelp(false)} className="icon-btn" style={{ width: 32, height: 32 }}>
                 <X size={16} />
@@ -318,17 +318,17 @@ export default function DashboardPage() {
               <div className="p-4 rounded-xl" style={{ background: 'var(--color-primary-muted)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <Flame size={18} className="text-indigo-400" />
-                  <h3 className="font-semibold text-sm">Como Ganhar XP</h3>
+                  <h3 className="font-semibold text-sm">{t('dashboard.howToEarnXP', 'How to Earn XP')}</h3>
                 </div>
                 <ul className="text-xs space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
-                  <li>• Complete seu check-in diário: <strong>+10 XP</strong></li>
-                  <li>• Adicione uma transação: <strong>+5 XP</strong></li>
-                  <li>• Crie uma meta: <strong>+15 XP</strong></li>
-                  <li>• Alcance uma meta: <strong>+50 XP</strong></li>
-                  <li>• Mantenha sequência de dias: <strong>+2 XP/dia</strong></li>
+                  <li>• Complete daily check-in: <strong>+10 XP</strong></li>
+                  <li>• Add a transaction: <strong>+5 XP</strong></li>
+                  <li>• Create a goal: <strong>+15 XP</strong></li>
+                  <li>• Reach a goal: <strong>+50 XP</strong></li>
+                  <li>• Maintain streak: <strong>+2 XP/day</strong></li>
                 </ul>
                 <p className="text-xs mt-2" style={{ color: 'var(--color-text-tertiary)' }}>
-                  A cada nível, você ganha badges exclusivos e acesso a novas funcionalidades!
+                  {t('dashboard.levelRewards', 'At each level, you earn exclusive badges and access to new features!')}
                 </p>
               </div>
 
@@ -336,16 +336,16 @@ export default function DashboardPage() {
               <div className="p-4 rounded-xl" style={{ background: 'var(--color-accent-muted)' }}>
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles size={18} className="text-emerald-400" />
-                  <h3 className="font-semibold text-sm">Loja de Recompensas</h3>
+                  <h3 className="font-semibold text-sm">{t('dashboard.rewardsStore', 'Rewards Store')}</h3>
                 </div>
                 <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                  Use suas Coins (ganhas ao alcançar metas) para desbloquear recompensas exclusivas na loja:
+                  {t('dashboard.useCoins', 'Use your Coins (earned by reaching goals) to unlock exclusive rewards in the store:')}
                 </p>
                 <ul className="text-xs mt-2 space-y-1" style={{ color: 'var(--color-text-secondary)' }}>
-                  <li>• Temas personalizados para o app</li>
-                  <li>• Badges raros de conquistas</li>
-                  <li>• Relatórios financeiros premium</li>
-                  <li>• E muito mais!</li>
+                  <li>• Custom app themes</li>
+                  <li>• Rare achievement badges</li>
+                  <li>• Premium financial reports</li>
+                  <li>• And much more!</li>
                 </ul>
               </div>
 
@@ -357,7 +357,7 @@ export default function DashboardPage() {
                   color: 'white'
                 }}
               >
-                Ver Loja 🏪
+                {t('dashboard.viewStore', 'View Store')}
               </button>
             </div>
           </div>
@@ -367,6 +367,7 @@ export default function DashboardPage() {
       {/* XP Progress */}
       {gamification && (
         <XPBar
+          t={t}
           xp_progress={gamification.xp_progress}
           xp_to_next_level={gamification.xp_to_next_level}
           level={gamification.level}
@@ -380,21 +381,21 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         <StatCard 
           icon={Wallet} 
-          label={t('dashboard.totalBalance', 'Saldo Total')} 
+          label={t('dashboard.totalBalance', 'Total Balance')} 
           value={fmtBRL(health?.balance)} 
           sub={health?.period}
           color="#6366F1" 
         />
         <StatCard 
           icon={Flame} 
-          label={t('profile.streak', 'Sequência')} 
-          value={`${gamification?.streak_count || 0} ${t('profile.days', 'dias')}`} 
-          sub={t('dashboard.consecutive', 'consecutivos')}
+          label={t('profile.streak', 'Streak')} 
+          value={`${gamification?.streak_count || 0} ${t('profile.days', 'days')}`} 
+          sub={t('dashboard.consecutive', 'consecutive')}
           color="#F59E0B" 
         />
         <StatCard 
           icon={TrendingUp} 
-          label={t('dashboard.income', 'Receitas')} 
+          label={t('dashboard.income', 'Income')} 
           value={fmtBRL(health?.total_income)} 
           sub={t('dashboard.thisMonth', 'este mês')}
           color="#10B981" 

@@ -1,9 +1,9 @@
 // src/components/LanguageSelector.jsx
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, ChevronDown } from 'lucide-react';
-import { changeLanguage, getSupportedLanguages } from '../i18n';
-import * as api from '../api/client';
+import { Globe, ChevronDown, Loader2 } from 'lucide-react';
+import { getSupportedLanguages } from '../i18n';
+import { changeLanguage as apiChangeLanguage } from '../api/client';
 import useAuthStore from '../store/authStore';
 
 export default function LanguageSelector({ compact = false }) {
@@ -31,7 +31,7 @@ export default function LanguageSelector({ compact = false }) {
     try {
       // If user is logged in, save to backend
       if (user) {
-        const updatedUser = await changeLanguage(langCode, api);
+        const updatedUser = await apiChangeLanguage(langCode);
         updateUser({ language: updatedUser.language });
       } else {
         // Just change locally for non-logged in users
@@ -39,6 +39,8 @@ export default function LanguageSelector({ compact = false }) {
         i18n.changeLanguage(langCode);
       }
       setIsOpen(false);
+      // Refresh page to update all translations
+      window.location.reload();
     } catch (error) {
       console.error('Failed to change language:', error);
     } finally {
@@ -50,16 +52,22 @@ export default function LanguageSelector({ compact = false }) {
     return (
       <div className="relative" ref={dropdownRef}>
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => !isLoading && setIsOpen(!isOpen)}
           disabled={isLoading}
           className="flex items-center gap-1 px-2 py-1 rounded-lg transition-colors hover:bg-opacity-10 hover:bg-white"
           style={{ color: 'var(--color-text-secondary)' }}
         >
-          <span className="text-base">{currentLang.flag}</span>
-          <ChevronDown size={14} />
+          {isLoading ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : (
+            <>
+              <span className="text-base">{currentLang.flag}</span>
+              <ChevronDown size={14} />
+            </>
+          )}
         </button>
 
-        {isOpen && (
+        {isOpen && !isLoading && (
           <div 
             className="absolute right-0 mt-1 py-1 rounded-lg shadow-lg z-50 min-w-[120px]"
             style={{ 
@@ -96,7 +104,14 @@ export default function LanguageSelector({ compact = false }) {
         className="block text-sm font-medium"
         style={{ color: 'var(--color-text-secondary)' }}
       >
-        {t('profile.language')}
+        {isLoading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 size={16} className="animate-spin" />
+            {t('common.loading', 'Loading...')}
+          </span>
+        ) : (
+          t('profile.language')
+        )}
       </label>
       
       <div className="grid grid-cols-3 gap-2" ref={dropdownRef}>
@@ -115,10 +130,16 @@ export default function LanguageSelector({ compact = false }) {
                 ? 'var(--color-primary-muted)' 
                 : 'var(--color-bg-secondary)',
               ringColor: i18n.language === lang.code ? 'var(--color-primary)' : 'transparent',
-              color: 'var(--color-text-primary)'
+              color: 'var(--color-text-primary)',
+              cursor: isLoading ? 'wait' : 'pointer',
+              opacity: isLoading ? 0.5 : 1
             }}
           >
-            <span className="text-2xl">{lang.flag}</span>
+            {isLoading && i18n.language === lang.code ? (
+              <Loader2 size={24} className="animate-spin" />
+            ) : (
+              <span className="text-2xl">{lang.flag}</span>
+            )}
             <span className="text-xs font-medium">{lang.name}</span>
           </button>
         ))}

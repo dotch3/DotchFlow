@@ -49,7 +49,8 @@
     "registerSubtitle": "Comienza tu viaje financiero",
     "startJourney": "Comenzar mi viaje",
     "logoutAction": "Cerrar sesión",
-    "maxUsersReached": "Número máximo de usuarios ({{count}}) alcanzado"
+    "maxUsersReached": "Número máximo de usuarios ({{count}}) alcanzado",
+    "passwordMinChars": "Mínimo 6 caracteres"
   },
   "nav": {
     "dashboard": "Panel",
@@ -101,7 +102,14 @@
     "expensePlural": "Gastos",
     "created": "Transacción creada",
     "updated": "Transacción actualizada",
-    "deleted": "Transacción eliminada"
+    "deleted": "Transacción eliminada",
+    "defaultUser": "Usuario",
+    "balance": "Balance",
+    "howToEarnXP": "Cómo Ganar XP",
+    "levelRewards": "¡En cada nivel, ganas badges exclusivos y acceso a nuevas funcionalidades!",
+    "rewardsStore": "Tienda de Recompensas",
+    "useCoins": "Usa tus Monedas (ganadas al alcanzar metas) para desbloquear recompensas exclusivas en la tienda:",
+    "viewStore": "Ver Tienda"
   },
   "goals": {
     "title": "Metas",
@@ -138,7 +146,11 @@
     "depositing": "Depositando...",
     "depositPlaceholder": "Monto a depositar (R$)",
     "subtitle": "Sigue tus objetivos financieros",
-    "createFirst": "¡Crea tu primera meta y comienza a ahorrar!"
+    "createFirst": "¡Crea tu primera meta y comienza a ahorrar!",
+    "totalLimit": "Límite Total",
+    "totalSpent": "Total Gastado",
+    "limit": "Límite",
+    "spent": "Gastado"
   },
   "categories": {
     "title": "Categorías",
@@ -152,7 +164,13 @@
     "confirmDelete": "¿Estás seguro de que quieres eliminar esta categoría?",
     "saved": "Categoría guardada correctamente",
     "created": "Categoría creada correctamente",
-    "deleted": "Categoría eliminada correctamente"
+    "deleted": "Categoría eliminada correctamente",
+    "subtitle": "Organiza tus categorías de gastos",
+    "namePlaceholder": "Ej. Comida, Transporte...",
+    "clickToChange": "Haz clic para cambiar",
+    "limitHelp": "Define un límite para controlar gastos en esta categoría",
+    "update": "Actualizar Categoría",
+    "create": "Crear Categoría"
   },
   "store": {
     "title": "Tienda",
@@ -173,7 +191,13 @@
     "themes": "🎨 Temas",
     "badges": "🏅 Insignias",
     "frames": "🖼️ Marcos",
-    "others": "⭐ Otros"
+    "others": "⭐ Otros",
+    "common": "Común",
+    "rare": "Raro",
+    "epic": "Épico",
+    "legendary": "Legendario",
+    "empty": "Tienda vacía",
+    "comingSoon": "¡Nuevos artículos próximamente!"
   },
   "profile": {
     "title": "Perfil",
@@ -221,5 +245,15 @@
     "streakBonus": "¡Bonus de Racha!",
     "streakDays": "¡{{days}} días de racha!",
     "achievement": "¡Logro Desbloqueado!"
+  },
+  "achievements": {
+    "firstGoal": "1ª Meta",
+    "sevenDays": "7 días",
+    "level5": "Nivel 5",
+    "hundredCoins": "100 monedas",
+    "firstIncome": "Primer Ingreso",
+    "level10": "Nivel 10",
+    "thirtyDays": "30 días",
+    "master": "Maestro"
   }
 }

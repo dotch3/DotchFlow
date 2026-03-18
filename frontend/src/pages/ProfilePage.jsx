@@ -19,7 +19,7 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const fmtBRL = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+  const fmtBRL = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v || 0);
 
   const radarData = gamification ? [
     { subject: 'Streak', value: Math.min(100, gamification.streak_count * 5) },
@@ -30,12 +30,12 @@ export default function ProfilePage() {
   ] : [];
 
   const getLevelTitle = (lvl) => {
-    if (!lvl) return t('profile.beginner', 'Iniciante');
-    if (lvl >= 20) return t('profile.financialMaster', 'Mestre Financeiro');
-    if (lvl >= 15) return t('profile.specialist', 'Especialista');
-    if (lvl >= 10) return t('profile.advanced', 'Avançado');
-    if (lvl >= 5) return t('profile.intermediate', 'Intermediário');
-    return t('profile.beginner', 'Iniciante');
+    if (!lvl) return t('profile.beginner', 'Beginner');
+    if (lvl >= 20) return t('profile.financialMaster', 'Financial Master');
+    if (lvl >= 15) return t('profile.specialist', 'Specialist');
+    if (lvl >= 10) return t('profile.advanced', 'Advanced');
+    if (lvl >= 5) return t('profile.intermediate', 'Intermediate');
+    return t('profile.beginner', 'Beginner');
   };
 
   const tierColor = (lvl) => {
@@ -48,14 +48,14 @@ export default function ProfilePage() {
   };
 
   const achievements = [
-    { icon: '🎯', label: '1ª Meta', done: true },
-    { icon: '🔥', label: '7 dias', done: (gamification?.streak_count || 0) >= 7 },
-    { icon: '⚡', label: 'Nível 5', done: (gamification?.level || 1) >= 5 },
-    { icon: '💎', label: '100 coins', done: (gamification?.dotch_coins || 0) >= 100 },
-    { icon: '📈', label: 'Primeira Receita', done: false },
-    { icon: '🏆', label: 'Nível 10', done: (gamification?.level || 1) >= 10 },
-    { icon: '🔥', label: '30 dias', done: (gamification?.streak_count || 0) >= 30 },
-    { icon: '👑', label: 'Mestre', done: (gamification?.level || 1) >= 20 },
+    { icon: '🎯', label: t('achievements.firstGoal', '1st Goal'), done: true },
+    { icon: '🔥', label: t('achievements.sevenDays', '7 days'), done: (gamification?.streak_count || 0) >= 7 },
+    { icon: '⚡', label: t('achievements.level5', 'Level 5'), done: (gamification?.level || 1) >= 5 },
+    { icon: '💎', label: t('achievements.hundredCoins', '100 coins'), done: (gamification?.dotch_coins || 0) >= 100 },
+    { icon: '📈', label: t('achievements.firstIncome', 'First Income'), done: false },
+    { icon: '🏆', label: t('achievements.level10', 'Level 10'), done: (gamification?.level || 1) >= 10 },
+    { icon: '🔥', label: t('achievements.thirtyDays', '30 days'), done: (gamification?.streak_count || 0) >= 30 },
+    { icon: '👑', label: t('achievements.master', 'Master'), done: (gamification?.level || 1) >= 20 },
   ];
 
   return (
@@ -209,8 +209,8 @@ export default function ProfilePage() {
               <Zap size={18} style={{ color: 'var(--color-danger)' }} />
             </div>
             <div className="text-left">
-              <p className="font-medium text-sm" style={{ color: 'var(--color-danger)' }}>{t('auth.logout', 'Sair da Conta')}</p>
-              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.logoutDesc', 'Encerrar sessão')}</p>
+              <p className="font-medium text-sm" style={{ color: 'var(--color-danger)' }}>{t('auth.logoutAction', 'Log out')}</p>
+              <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.logoutDesc', 'End session')}</p>
             </div>
           </div>
           <ChevronRight size={18} style={{ color: 'var(--color-danger)' }} />

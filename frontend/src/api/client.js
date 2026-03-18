@@ -32,6 +32,8 @@ export const login = (email, password) =>
   api.post('/auth/login', { email, password }).then(r => r.data);
 export const getMe = () =>
   api.get('/auth/me').then(r => r.data);
+export const changeLanguage = (language) =>
+  api.put('/auth/language', { language }).then(r => r.data);
 
 // --- Gamification ---
 export const checkin = () =>

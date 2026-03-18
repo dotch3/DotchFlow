@@ -49,7 +49,8 @@
     "registerSubtitle": "Start your financial journey",
     "startJourney": "Start my journey",
     "logoutAction": "Log out",
-    "maxUsersReached": "Maximum number of users ({{count}}) reached"
+    "maxUsersReached": "Maximum number of users ({{count}}) reached",
+    "passwordMinChars": "Minimum 6 characters"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -101,7 +102,14 @@
     "expensePlural": "Expenses",
     "created": "Transaction created",
     "updated": "Transaction updated",
-    "deleted": "Transaction deleted"
+    "deleted": "Transaction deleted",
+    "defaultUser": "User",
+    "balance": "Balance",
+    "howToEarnXP": "How to Earn XP",
+    "levelRewards": "At each level, you earn exclusive badges and access to new features!",
+    "rewardsStore": "Rewards Store",
+    "useCoins": "Use your Coins (earned by reaching goals) to unlock exclusive rewards in the store:",
+    "viewStore": "View Store"
   },
   "goals": {
     "title": "Goals",
@@ -138,7 +146,11 @@
     "depositing": "Depositing...",
     "depositPlaceholder": "Amount to deposit (R$)",
     "subtitle": "Track your financial goals",
-    "createFirst": "Create your first goal and start saving!"
+    "createFirst": "Create your first goal and start saving!",
+    "totalLimit": "Total Limit",
+    "totalSpent": "Total Spent",
+    "limit": "Limit",
+    "spent": "Spent"
   },
   "categories": {
     "title": "Categories",
@@ -152,7 +164,13 @@
     "confirmDelete": "Are you sure you want to delete this category?",
     "saved": "Category saved successfully",
     "created": "Category created successfully",
-    "deleted": "Category deleted successfully"
+    "deleted": "Category deleted successfully",
+    "subtitle": "Organize your spending categories",
+    "namePlaceholder": "E.g. Food, Transport...",
+    "clickToChange": "Click to change",
+    "limitHelp": "Set a limit to control spending in this category",
+    "update": "Update Category",
+    "create": "Create Category"
   },
   "store": {
     "title": "Store",
@@ -173,7 +191,13 @@
     "themes": "🎨 Themes",
     "badges": "🏅 Badges",
     "frames": "🖼️ Frames",
-    "others": "⭐ Others"
+    "others": "⭐ Others",
+    "common": "Common",
+    "rare": "Rare",
+    "epic": "Epic",
+    "legendary": "Legendary",
+    "empty": "Store empty",
+    "comingSoon": "New items coming soon!"
   },
   "profile": {
     "title": "Profile",
@@ -221,5 +245,15 @@
     "streakBonus": "Streak Bonus!",
     "streakDays": "{{days}} day streak!",
     "achievement": "Achievement Unlocked!"
+  },
+  "achievements": {
+    "firstGoal": "1st Goal",
+    "sevenDays": "7 days",
+    "level5": "Level 5",
+    "hundredCoins": "100 coins",
+    "firstIncome": "First Income",
+    "level10": "Level 10",
+    "thirtyDays": "30 days",
+    "master": "Master"
   }
 }

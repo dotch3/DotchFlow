@@ -10,28 +10,24 @@ const RARITY_COLORS = {
     bg: 'rgba(107, 114, 128, 0.1)', 
     border: 'rgba(107, 114, 128, 0.2)', 
     text: '#9CA3AF', 
-    label: 'Comum',
     gradient: 'linear-gradient(135deg, #4B5563 0%, #6B7280 100%)'
   },
   rare: { 
     bg: 'rgba(59, 130, 246, 0.1)', 
     border: 'rgba(59, 130, 246, 0.25)', 
     text: '#60A5FA', 
-    label: 'Raro',
     gradient: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)'
   },
   epic: { 
     bg: 'rgba(124, 58, 237, 0.1)', 
     border: 'rgba(124, 58, 237, 0.25)', 
     text: '#A78BFA', 
-    label: 'Épico',
     gradient: 'linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%)'
   },
   legendary: { 
     bg: 'rgba(245, 158, 11, 0.1)', 
     border: 'rgba(245, 158, 11, 0.25)', 
     text: '#FCD34D', 
-    label: 'Lendário',
     gradient: 'linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%)'
   },
 };
@@ -65,19 +61,19 @@ export default function StorePage() {
   const handleUnlock = async (item) => {
     if (item.is_unlocked) return;
     if (user.dotch_coins < item.price) {
-      setMsg({ type: 'error', text: `${t('store.needCoins', 'Você precisa de')} ${item.price} ${t('store.coins', 'coins')} ${t('store.butHave', 'mas tem apenas')} ${user.dotch_coins}` });
+      setMsg({ type: 'error', text: t('store.notEnoughCoins', 'Not enough coins') });
       setTimeout(() => setMsg(null), 3000);
       return;
     }
     setUnlocking(item.id);
     try {
       const r = await api.unlockItem(item.id);
-      setMsg({ type: 'success', text: r.message || t('store.unlocked', 'Item desbloqueado!') });
+      setMsg({ type: 'success', text: r.message || t('store.unlocked', 'Item unlocked!') });
       refreshUser();
       load();
       setTimeout(() => setMsg(null), 4000);
     } catch (err) {
-      setMsg({ type: 'error', text: err.response?.data?.error || t('errors.generic', 'Erro ao desbloquear') });
+      setMsg({ type: 'error', text: err.response?.data?.error || t('errors.generic', 'Error unlocking item') });
       setTimeout(() => setMsg(null), 3000);
     }
     setUnlocking(null);
@@ -194,7 +190,7 @@ export default function StorePage() {
                           }}
                         >
                           <RarityIcon size={10} />
-                          {rarity.label}
+                          {t(`store.${item.rarity}`, item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1))}
                         </span>
                         
                         {item.is_unlocked ? (
@@ -222,7 +218,7 @@ export default function StorePage() {
                       <div className="mt-auto">
                         {item.is_unlocked ? (
                           <span className="text-xs font-medium" style={{ color: 'var(--color-accent)' }}>
-                            ✓ Desbloqueado
+                            ✓ {t('store.owned', 'Owned')}
                           </span>
                         ) : (
                           <div className="flex items-center gap-1.5">
@@ -258,10 +254,10 @@ export default function StorePage() {
         <div className="empty-state">
           <div className="empty-state-icon">🛒</div>
           <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Loja vazia
+            {t('store.empty', 'Store empty')}
           </h3>
           <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-            Novos itens em breve!
+            {t('store.comingSoon', 'New items coming soon!')}
           </p>
         </div>
       )}

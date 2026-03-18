@@ -49,7 +49,8 @@
     "registerSubtitle": "Comece sua jornada financeira",
     "startJourney": "Começar minha jornada",
     "logoutAction": "Sair da Conta",
-    "maxUsersReached": "Limite máximo de usuários ({{count}}) atingido"
+    "maxUsersReached": "Limite máximo de usuários ({{count}}) atingido",
+    "passwordMinChars": "Mínimo 6 caracteres"
   },
   "nav": {
     "dashboard": "Painel",
@@ -81,7 +82,33 @@
     "expensePlural": "Despesas",
     "created": "Transação criada",
     "updated": "Transação atualizada",
-    "deleted": "Transação excluída"
+    "deleted": "Transação excluída",
+    "defaultUser": "Usuário",
+    "balance": "Saldo",
+    "howToEarnXP": "Como Ganhar XP",
+    "levelRewards": "A cada nível, você ganha badges exclusivos e acesso a novas funcionalidades!",
+    "rewardsStore": "Loja de Recompensas",
+    "useCoins": "Use suas Coins (ganhas ao alcançar metas) para desbloquear recompensas exclusivas na loja:",
+    "viewStore": "Ver Loja",
+    "hello": "Olá",
+    "keepGoing": "Continue assim! Você está no caminho certo.",
+    "help": "Ajuda",
+    "howItWorks": "Como Funciona",
+    "levelProgress": "Progresso até o próximo nível",
+    "financialHealth": "Saúde Financeira",
+    "essential": "Essencial",
+    "priority": "Prioridade",
+    "lifestyle": "Estilo",
+    "excellent": "Excelente",
+    "good": "Bom",
+    "attention": "Atenção",
+    "30dayForecast": "Projeção 30 dias",
+    "endOfMonth": "fim do mês",
+    "income": "Receitas",
+    "expenses": "Despesas",
+    "consecutive": "consecutivos",
+    "dailyCheckin": "Check-in Diário",
+    "checkinDone": "Check-in realizado hoje!"
   },
   "goals": {
     "title": "Metas",
@@ -118,7 +145,11 @@
     "depositing": "Depositando...",
     "depositPlaceholder": "Valor a depositar (R$)",
     "subtitle": "Acompanhe seus objetivos financeiros",
-    "createFirst": "Crie sua primeira meta e comece a poupar!"
+    "createFirst": "Crie sua primeira meta e comece a poupar!",
+    "totalLimit": "Total Limite",
+    "totalSpent": "Total Gasto",
+    "limit": "Limite",
+    "spent": "Gasto"
   },
   "categories": {
     "title": "Categorias",
@@ -132,7 +163,13 @@
     "confirmDelete": "Tem certeza que deseja excluir esta categoria?",
     "saved": "Categoria salva com sucesso",
     "created": "Categoria criada com sucesso",
-    "deleted": "Categoria excluída com sucesso"
+    "deleted": "Categoria excluída com sucesso",
+    "subtitle": "Organize suas categorias de gastos",
+    "namePlaceholder": "Ex: Alimentação, Transporte...",
+    "clickToChange": "Clique para alterar",
+    "limitHelp": "Defina um limite para controlar gastos nesta categoria",
+    "update": "Atualizar Categoria",
+    "create": "Criar Categoria"
   },
   "store": {
     "title": "Loja",
@@ -153,7 +190,13 @@
     "themes": "🎨 Temas",
     "badges": "🏅 Emblemas",
     "frames": "🖼️ Molduras",
-    "others": "⭐ Outros"
+    "others": "⭐ Outros",
+    "common": "Comum",
+    "rare": "Raro",
+    "epic": "Épico",
+    "legendary": "Lendário",
+    "empty": "Loja vazia",
+    "comingSoon": "Novos itens em breve!"
   },
   "profile": {
     "title": "Perfil",
@@ -201,5 +244,15 @@
     "streakBonus": "Bônus de Sequência!",
     "streakDays": "{{days}} dias de sequência!",
     "achievement": "Conquista Desbloqueada!"
+  },
+  "achievements": {
+    "firstGoal": "1ª Meta",
+    "sevenDays": "7 dias",
+    "level5": "Nível 5",
+    "hundredCoins": "100 coins",
+    "firstIncome": "Primeira Receita",
+    "level10": "Nível 10",
+    "thirtyDays": "30 dias",
+    "master": "Mestre"
   }
 }

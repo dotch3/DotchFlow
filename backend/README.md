@@ -45,6 +45,20 @@ npm run dev
 
 API will be available at `http://localhost:3001`
 
+## Testing
+
+```bash
+npm test
+```
+
+This runs Jest with Supertest for API route testing.
+
+**Current test coverage:**
+- Auth routes (login, register, language)
+- Transactions routes (GET, POST, DELETE)
+
+Tests use mocked database functions - no real database required.
+
 ## Database
 
 ### Reset Database

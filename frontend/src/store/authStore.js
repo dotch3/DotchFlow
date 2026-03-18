@@ -22,7 +22,7 @@ const useAuthStore = create(persist(
         }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || i18n.t('auth.loginError', 'Erro ao fazer login');
+        const msg = err.response?.data?.error || i18n.t('auth.loginError', 'Error logging in');
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }
@@ -39,7 +39,7 @@ const useAuthStore = create(persist(
         }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || i18n.t('auth.registerError', 'Erro ao registrar');
+        const msg = err.response?.data?.error || i18n.t('auth.registerError', 'Error registering');
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }

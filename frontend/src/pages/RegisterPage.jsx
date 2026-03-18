@@ -59,14 +59,14 @@ export default function RegisterPage() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
                        className="w-full pl-9 pr-4 py-3 rounded-xl text-sm outline-none"
                        style={{ background: '#242438', border: '1px solid rgba(124,58,237,0.2)', color: '#F9FAFB' }}
-                       placeholder="Mínimo 6 caracteres" />
+                       placeholder={t('auth.passwordMinChars', 'Minimum 6 characters')} />
               </div>
             </div>
 
             <button type="submit" disabled={isLoading}
                     className="w-full py-3 rounded-xl font-semibold transition-all text-white"
                     style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', opacity: isLoading ? 0.7 : 1 }}>
-              {isLoading ? t('common.loading') : `${t('auth.startJourney', 'Começar minha jornada')} 🎮`}
+              {isLoading ? t('common.loading') : `${t('auth.startJourney', 'Start my journey')} 🎮`}
             </button>
           </form>
 

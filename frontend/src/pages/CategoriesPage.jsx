@@ -38,7 +38,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
       }
       onSaved();
     } catch (err) {
-      setError(err.response?.data?.error || t('errors.generic', 'Erro ao salvar'));
+      setError(err.response?.data?.error || t('errors.generic', 'Error saving'));
     }
     setLoading(false);
   };
@@ -48,7 +48,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
       <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
-            {editCategory ? 'Editar Categoria' : 'Nova Categoria'}
+            {editCategory ? t('categories.edit', 'Edit Category') : t('categories.add', 'Add Category')}
           </h2>
           <button 
             onClick={onClose} 
@@ -70,7 +70,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
           {/* Icon Selector */}
           <div>
             <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
-              Ícone
+              {t('categories.icon', 'Icon')}
             </label>
             <div className="flex items-center gap-3">
               <button
@@ -82,7 +82,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
                 {icon}
               </button>
               <span className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-                Clique para alterar
+                {t('categories.clickToChange', 'Click to change')}
               </span>
             </div>
             
@@ -110,14 +110,14 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
           {/* Name Input */}
           <div>
             <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
-              Nome da Categoria
+              {t('categories.name', 'Category Name')}
             </label>
             <input
               value={name}
               onChange={e => setName(e.target.value)}
               required
               maxLength={100}
-              placeholder="Ex: Alimentação, Transporte..."
+              placeholder={t('categories.namePlaceholder', 'E.g. Food, Transport...')}
               className="input"
             />
           </div>
@@ -125,7 +125,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
           {/* Monthly Limit Input */}
           <div>
             <label className="text-sm font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
-              Limite Mensal (R$)
+              {t('categories.monthlyLimit', 'Monthly Limit ($)')}
             </label>
             <input
               value={monthlyLimit}
@@ -133,11 +133,11 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
               type="number"
               step="0.01"
               min="0"
-              placeholder="0,00"
+              placeholder="0.00"
               className="input"
             />
             <p className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
-              Defina um limite para controlar gastos nesta categoria
+              {t('categories.limitHelp', 'Set a limit to control spending in this category')}
             </p>
           </div>
 
@@ -146,7 +146,7 @@ function CategoryModal({ onClose, onSaved, editCategory, t }) {
             disabled={loading || !name.trim()}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Salvando...' : editCategory ? 'Atualizar Categoria' : 'Criar Categoria'}
+            {loading ? t('common.loading', 'Saving...') : editCategory ? t('categories.update', 'Update Category') : t('categories.create', 'Create Category')}
           </button>
         </form>
       </div>
@@ -176,7 +176,7 @@ export default function CategoriesPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Excluir esta categoria?')) return;
+    if (!confirm(t('categories.confirmDelete', 'Delete this category?'))) return;
     await api.deleteCategory(id);
     refreshUser();
     load();
@@ -187,7 +187,7 @@ export default function CategoriesPage() {
     setShowModal(true);
   };
 
-  const fmtBRL = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v || 0);
+  const fmtBRL = v => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v || 0);
 
   // Calculate totals
   const totalLimit = categories.reduce((sum, c) => sum + (c.monthly_limit || 0), 0);
@@ -198,9 +198,9 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('categories.title', 'Categorias')}</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>{t('categories.title', 'Categories')}</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-            Organize suas categorias de gastos
+            {t('categories.subtitle', 'Organize your spending categories')}
           </p>
         </div>
         <button 
@@ -208,7 +208,7 @@ export default function CategoriesPage() {
           className="btn btn-primary"
         >
           <Plus size={16} />
-          <span className="hidden sm:inline">Nova</span>
+          <span className="hidden sm:inline">New</span>
         </button>
       </div>
 
@@ -216,7 +216,7 @@ export default function CategoriesPage() {
       <div className="grid grid-cols-2 gap-3">
         <div className="card p-4 rounded-2xl">
           <p className="text-xs mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            Total Limite
+            {t('categories.totalLimit', 'Total Limit')}
           </p>
           <p className="text-xl font-bold" style={{ color: 'var(--color-primary-light)' }}>
             {fmtBRL(totalLimit)}
@@ -224,7 +224,7 @@ export default function CategoriesPage() {
         </div>
         <div className="card p-4 rounded-2xl">
           <p className="text-xs mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
-            Total Gasto
+            {t('categories.totalSpent', 'Total Spent')}
           </p>
           <p className="text-xl font-bold" style={{ color: 'var(--color-danger-light)' }}>
             {fmtBRL(totalSpent)}
@@ -243,10 +243,10 @@ export default function CategoriesPage() {
         <div className="empty-state">
           <div className="empty-state-icon">🏷️</div>
           <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--color-text-secondary)' }}>
-            Nenhuma categoria encontrada
+            {t('categories.noCategories', 'No categories found')}
           </h3>
           <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
-            Crie sua primeira categoria para organizar seus gastos
+            {t('categories.createFirst', 'Create your first category to organize your spending')}
           </p>
         </div>
       ) : (
@@ -292,9 +292,9 @@ export default function CategoriesPage() {
                   </div>
                 )}
                 <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-                  Limite: {fmtBRL(category.monthly_limit)}
+                  {t('categories.limit', 'Limit')}: {fmtBRL(category.monthly_limit)}
                   {category.monthly_spent > 0 && (
-                    <span> • Gasto: {fmtBRL(category.monthly_spent)}</span>
+                    <span> • {t('categories.spent', 'Spent')}: {fmtBRL(category.monthly_spent)}</span>
                   )}
                 </p>
               </div>

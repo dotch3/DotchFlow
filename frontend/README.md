@@ -37,6 +37,24 @@ npm run dev
 
 App will be available at `http://localhost:5173`
 
+## Testing
+
+```bash
+npm run test:run
+```
+
+This runs Vitest with Testing Library.
+
+**Current test coverage:**
+- LanguageSelector component (UI interactions)
+- authStore (state management with persistence)
+
+To run tests in watch mode:
+
+```bash
+npm run test
+```
+
 ## Production Build
 
 To create a production build:
