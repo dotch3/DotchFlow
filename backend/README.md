@@ -712,6 +712,31 @@ lost between spin-downs since it now lives in Neon, not on Render's disk.
 
 ---
 
+## Local Deploy (Docker / Podman)
+
+For running the whole app (Postgres + this API + the frontend) locally in
+containers, with no Neon/Render/Vercel account needed:
+
+```bash
+# from the repo root, not backend/
+cp .env.example .env    # fill in JWT_SECRET
+docker compose up --build     # or: podman compose up --build
+```
+
+Then, in a second terminal, seed test data inside the running container:
+
+```bash
+docker compose exec backend npm run dev-seed
+```
+
+The API is then reachable at `http://localhost:3001` (Swagger at
+`/api-docs`), backed by its own Postgres container - not related to the
+Neon/local-Postgres setup described above. Full walkthrough (env vars,
+troubleshooting Podman's registry login on macOS, tearing down) is in the
+root [`README.md`](../README.md#local-deploy-docker--podman---everything-at-once).
+
+---
+
 ## Error Responses
 
 All endpoints may return error responses:
