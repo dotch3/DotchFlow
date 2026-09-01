@@ -1,0 +1,60 @@
+# Local, self-contained deploy of DotchFlow: Postgres + backend + frontend,
+# all in containers. Works with either Docker (`docker compose`) or Podman
+# (`podman compose` / `podman-compose`) - see PROJECT.md's "Local deploy"
+# section for the full walkthrough.
+#
+# Quick start:
+#   cp .env.example .env   # then fill in JWT_SECRET (and optionally POSTGRES_PASSWORD)
+#   docker compose up --build
+#   docker compose exec backend npm run dev-seed   # optional: seed test data
+#
+# Frontend:  http://localhost:5173
+# Backend:   http://localhost:3001  (Swagger at /api-docs)
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dotchflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dotchflow_local}
+      POSTGRES_DB: dotchflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - dotchflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dotchflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://dotchflow:${POSTGRES_PASSWORD:-dotchflow_local}@db:5432/dotchflow
+      DATABASE_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env - see .env.example}
+      CORS_ORIGINS: http://localhost:5173
+      MAX_USERS: ${MAX_USERS:-50}
+      CLEANUP_INTERVAL_DAYS: ${CLEANUP_INTERVAL_DAYS:-30}
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Reachable from the browser on the host, not the internal Docker
+        # network - this is why it's "localhost:3001", not "backend:3001".
+        VITE_API_URL: http://localhost:3001/api
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  dotchflow_pgdata:

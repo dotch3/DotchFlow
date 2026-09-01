@@ -22,8 +22,9 @@ Gamified personal finance tracker — turn financial control into a motivating e
 | Layer | Stack |
 |-------|-------|
 | Frontend | React + Vite, Tailwind CSS, Recharts, Zustand, react-i18next |
-| Backend | Node.js + Express, SQLite (sql.js), JWT |
+| Backend | Node.js + Express, PostgreSQL, JWT |
 | Docs | Swagger / OpenAPI at `/api-docs` |
+| Deploy | Neon (DB) + Render (API) + Vercel (frontend), or local via Docker/Podman |
 
 ## Quick Start
 
@@ -32,8 +33,8 @@ Gamified personal finance tracker — turn financial control into a motivating e
 ```bash
 cd backend
 npm install
-cp .env.example .env   # set JWT_SECRET
-npm run dev            # http://localhost:3001
+cp .env.example .env   # set JWT_SECRET and DATABASE_URL (local Postgres or Neon)
+npm run dev            # http://localhost:<PORT from .env>
 ```
 
 First-time setup with seed data:
@@ -49,10 +50,28 @@ Test credentials after seed: `test@dotchflow.com` / `myPassword123`
 ```bash
 cd frontend
 npm install
+cp .env.example .env   # set VITE_BACKEND_PORT to match backend/.env's PORT
 npm run dev            # http://localhost:5173
 ```
 
-Frontend expects the API at `http://localhost:3001`. Change in `src/api/client.js` if needed.
+All API routes are served under `/api` on the backend. In dev, the Vite
+proxy forwards `/api/*` to the backend port above; in production, the
+frontend calls `VITE_API_URL` (set at build time) directly — see
+[`PROJECT.md`](PROJECT.md#31-deploy-em-produção-neon--render--vercel) for
+the full deploy walkthrough.
+
+### Local deploy (Docker / Podman) — everything at once
+
+Postgres + backend + frontend, all in containers, no external services
+needed:
+
+```bash
+cp .env.example .env   # set JWT_SECRET
+docker compose up --build   # or: podman compose up --build
+```
+
+Full details (including seeding, ports, and how the pieces connect) in
+[`PROJECT.md`](PROJECT.md#32-deploy-local-docker--podman).
 
 ## Testing
 
