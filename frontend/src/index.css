@@ -177,25 +177,31 @@ h4 { font-size: 1rem; line-height: 1.4; }
 }
 
 /* Input Fields */
-.input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  color: var(--color-text-primary);
-  font-size: 0.9375rem;
-  transition: all 0.2s ease;
-  outline: none;
-}
+/* Wrapped in @layer components so Tailwind utilities (pl-10/pr-10 for icon
+   spacing) can override padding-left/right here. Unlayered CSS always beats
+   layered CSS regardless of source order, which is why this was previously
+   overriding the icon-spacing utilities on Login/Register inputs. */
+@layer components {
+  .input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text-primary);
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+    outline: none;
+  }
 
-.input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-muted);
-}
+  .input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-muted);
+  }
 
-.input::placeholder {
-  color: var(--color-text-muted);
+  .input::placeholder {
+    color: var(--color-text-muted);
+  }
 }
 
 /* Select */
@@ -479,7 +485,9 @@ h4 { font-size: 1rem; line-height: 1.4; }
   }
   
   .input {
-    padding: 0.75rem 0.875rem;
+    /* padding-block only (not the shorthand) so this doesn't clobber the
+       pl-10/pr-10 icon-spacing utilities on inputs like Login/Register */
+    padding-block: 0.75rem;
     font-size: 0.875rem;
   }
 }

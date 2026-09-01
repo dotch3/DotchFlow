@@ -4,6 +4,17 @@ import { persist } from 'zustand/middleware';
 import i18n from '../i18n';
 import * as api from '../api/client';
 
+// The backend always returns { error: "string" }, but other layers in front
+// of it (Vercel's own platform 404, a proxy timeout, etc.) can return
+// { error: { code, message } } or plain text instead. Normalize to a
+// string so we never hand React an object as a child (React error #31).
+function extractErrorMessage(err, fallback) {
+  const raw = err.response?.data?.error;
+  if (typeof raw === 'string' && raw) return raw;
+  if (raw && typeof raw === 'object' && typeof raw.message === 'string') return raw.message;
+  return fallback;
+}
+
 const useAuthStore = create(persist(
   (set, get) => ({
     user: null,
@@ -22,7 +33,7 @@ const useAuthStore = create(persist(
         }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || i18n.t('auth.loginError', 'Error logging in');
+        const msg = extractErrorMessage(err, i18n.t('auth.loginError', 'Error logging in'));
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }
@@ -39,7 +50,7 @@ const useAuthStore = create(persist(
         }
         return data;
       } catch (err) {
-        const msg = err.response?.data?.error || i18n.t('auth.registerError', 'Error registering');
+        const msg = extractErrorMessage(err, i18n.t('auth.registerError', 'Error registering'));
         set({ error: msg, isLoading: false });
         throw new Error(msg);
       }
