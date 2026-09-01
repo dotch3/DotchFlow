@@ -96,15 +96,18 @@ swaggerDocs.info.version = APP_VERSION;
 // changed in .env - previously sent "Try it out" requests to a port
 // nothing was listening on, which looked like a CORS/network error in
 // Swagger UI but was really just the wrong URL).
+// Paths in openapi.yaml (e.g. /auth/login) are relative to these server
+// URLs and don't repeat the /api prefix themselves, so it's appended here
+// to match how routes are actually mounted above.
 swaggerDocs.servers = [
-  { url: `http://localhost:${PORT}`, description: 'Local development server' },
+  { url: `http://localhost:${PORT}/api`, description: 'Local development server' },
 ];
 
 // Render exposes the live URL via RENDER_EXTERNAL_URL. When present, put it
 // first in the Swagger "servers" dropdown so /api-docs works out of the box
 // against the deployed API, without hand-editing openapi.yaml per deploy.
 if (process.env.RENDER_EXTERNAL_URL) {
-  swaggerDocs.servers.unshift({ url: process.env.RENDER_EXTERNAL_URL, description: 'Production (Render)' });
+  swaggerDocs.servers.unshift({ url: `${process.env.RENDER_EXTERNAL_URL}/api`, description: 'Production (Render)' });
 }
 
 // Used only if CORS_ORIGINS isn't set in .env - covers the most common
@@ -132,14 +135,21 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get('/api-docs.json', (req, res) => res.json(swaggerDocs));
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/gamification', gamificationRoutes);
-app.use('/finance', financeRoutes);
-app.use('/transactions', transactionsRoutes);
-app.use('/categories', categoriesRoutes);
-app.use('/goals', goalsRoutes);
-app.use('/store', storeRoutes);
-app.use('/admin', adminRoutes);
+// Mounted under /api so the path is identical in every environment: local
+// dev (via the Vite proxy, which forwards /api/* as-is - no rewrite), and
+// production (frontend calls the deployed URL + /api directly, no proxy
+// involved). Previously only the Vite proxy added this prefix, which meant
+// dev and production used different paths and production 404'd.
+const apiRouter = express.Router();
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/gamification', gamificationRoutes);
+apiRouter.use('/finance', financeRoutes);
+apiRouter.use('/transactions', transactionsRoutes);
+apiRouter.use('/categories', categoriesRoutes);
+apiRouter.use('/goals', goalsRoutes);
+apiRouter.use('/store', storeRoutes);
+apiRouter.use('/admin', adminRoutes);
+app.use('/api', apiRouter);
 
 // 404
 app.use(async (req, res) => res.status(404).json({ error: await t('errors.routeNotFound') }));

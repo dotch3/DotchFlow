@@ -6,10 +6,11 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
+      // The backend now mounts all routes under /api itself, so this just
+      // forwards as-is (no rewrite) - same path in dev and production.
       '/api': {
         target: 'http://localhost:3001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
       }
     }
   }
