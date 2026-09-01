@@ -93,7 +93,11 @@ function HealthScore({ health, t }) {
       
       <div className="flex items-center gap-6">
         <div className="w-24 h-24">
-          <ResponsiveContainer width="100%" height="100%">
+          {/* Fixed px size (matches w-24/h-24 = 96px) instead of "100%" -
+              percentage dimensions make Recharts measure the DOM on mount,
+              which can race with layout and log a spurious
+              "width(-1) and height(-1)" warning on first paint. */}
+          <ResponsiveContainer width={96} height={96}>
             <PieChart>
               <Pie
                 data={data}
