@@ -1,7 +1,7 @@
 // src/pages/RegisterPage.jsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Mail, Lock } from 'lucide-react';
+import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../store/authStore';
 
@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const { register, isLoading, error } = useAuthStore();
 
   const handleSubmit = async (e) => {
@@ -56,10 +57,17 @@ export default function RegisterPage() {
               <label className="block text-sm text-gray-400 mb-1">{t('auth.password')}</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
-                       className="w-full pl-9 pr-4 py-3 rounded-xl text-sm outline-none"
+                <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
+                       className="w-full pl-9 pr-10 py-3 rounded-xl text-sm outline-none"
                        style={{ background: '#242438', border: '1px solid rgba(124,58,237,0.2)', color: '#F9FAFB' }}
                        placeholder={t('auth.passwordMinChars', 'Minimum 6 characters')} />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                >
+                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
