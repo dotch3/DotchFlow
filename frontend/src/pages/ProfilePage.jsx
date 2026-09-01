@@ -1,16 +1,18 @@
 // src/pages/ProfilePage.jsx
 import { useState, useEffect } from 'react';
-import { User, Activity, Award, BarChart2, Gem, Flame, Zap, ChevronRight } from 'lucide-react';
+import { User, Activity, Award, BarChart2, Gem, Flame, Zap, ChevronRight, X, Mail } from 'lucide-react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import * as api from '../api/client';
 import useAuthStore from '../store/authStore';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const { user, logout } = useAuthStore();
   const [gamification, setGamification] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAccountData, setShowAccountData] = useState(false);
 
   useEffect(() => {
     api.getGamificationStatus()
@@ -186,18 +188,21 @@ export default function ProfilePage() {
 
       {/* Account Section */}
       <div className="space-y-2">
-        <div className="card p-4 flex items-center justify-between hover-lift cursor-pointer">
+        <button
+          onClick={() => setShowAccountData(true)}
+          className="w-full card p-4 flex items-center justify-between hover-lift cursor-pointer"
+        >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-primary-muted)' }}>
               <User size={18} style={{ color: 'var(--color-primary-light)' }} />
             </div>
-            <div>
+            <div className="text-left">
               <p className="font-medium text-sm">{t('profile.accountData', 'Dados da Conta')}</p>
               <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{t('profile.emailPrefs', 'Email e preferências')}</p>
             </div>
           </div>
           <ChevronRight size={18} style={{ color: 'var(--color-text-muted)' }} />
-        </div>
+        </button>
 
         <button 
           onClick={logout}
@@ -216,6 +221,39 @@ export default function ProfilePage() {
           <ChevronRight size={18} style={{ color: 'var(--color-danger)' }} />
         </button>
       </div>
+
+      {/* Account Data Modal */}
+      {showAccountData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setShowAccountData(false)}>
+          <div className="w-full max-w-md card-elevated p-5 scale-in" style={{ borderRadius: 24 }} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-lg" style={{ fontFamily: 'var(--font-display)' }}>
+                {t('profile.accountData', 'Dados da Conta')}
+              </h2>
+              <button onClick={() => setShowAccountData(false)} className="icon-btn" style={{ width: 32, height: 32 }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>
+                  {t('auth.email', 'Email')}
+                </label>
+                <div
+                  className="flex items-center gap-2 p-3 rounded-xl text-sm"
+                  style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)' }}
+                >
+                  <Mail size={16} style={{ color: 'var(--color-text-muted)' }} />
+                  {user?.email}
+                </div>
+              </div>
+
+              <LanguageSelector />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
