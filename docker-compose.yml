@@ -19,7 +19,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dotchflow_local}
       POSTGRES_DB: dotchflow
     ports:
-      - "5432:5432"
+      # Host port 5433, not 5432 - avoids clashing with a Postgres already
+      # running natively on the host (common if you've also set up local
+      # dev without Docker, per backend/README.md). The backend talks to
+      # this container over the internal Docker network as "db:5432"
+      # regardless, so this only matters if you want to connect from the
+      # host (e.g. psql, a GUI client) - use port 5433 for that.
+      - "5433:5432"
     volumes:
       - dotchflow_pgdata:/var/lib/postgresql/data
     healthcheck:
