@@ -31,7 +31,7 @@ router.get('/health', authMiddleware, async (req, res) => {
     const startDate = `${y}-${m}-01`;
     const endDate = `${y}-${m}-31`;
 
-    const transactions = queryAll(db,
+    const transactions = await queryAll(db,
       `SELECT t.amount, t.type, c.name as category_name
        FROM transactions t
        LEFT JOIN categories c ON t.category_id = c.id
@@ -93,7 +93,7 @@ router.get('/forecast', authMiddleware, async (req, res) => {
     const startDate = `${year}-${month}-01`;
 
     // Current month balance so far
-    const monthTxs = queryAll(db,
+    const monthTxs = await queryAll(db,
       'SELECT amount, type, date FROM transactions WHERE user_id = ? AND date >= ?',
       [req.userId, startDate]
     );
@@ -104,7 +104,7 @@ router.get('/forecast', authMiddleware, async (req, res) => {
     }
 
     // Recurring transactions to project
-    const recurring = queryAll(db,
+    const recurring = await queryAll(db,
       'SELECT amount, type FROM transactions WHERE user_id = ? AND is_recurring = 1',
       [req.userId]
     );

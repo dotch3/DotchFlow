@@ -10,7 +10,8 @@
     "invalidLanguage": "Invalid language. Allowed values: en, es, pt-BR",
     "authTokenMissing": "Authentication token missing",
     "authTokenInvalid": "Invalid or expired token",
-    "routeNotFound": "Route not found"
+    "routeNotFound": "Route not found",
+    "passwordRequired": "Password is required"
   },
   "categories": {
     "notFound": "Category not found",
@@ -39,7 +40,13 @@
   },
   "admin": {
     "cleanupError": "Error during cleanup",
-    "statusError": "Error fetching status"
+    "cleanupSuccess": "Database cleanup completed successfully",
+    "statusError": "Error fetching status",
+    "resetSuccess": "Database reset completed successfully",
+    "resetError": "Error resetting database",
+    "seedSuccess": "Test data seeded successfully",
+    "seedError": "Error seeding test data",
+    "seedUserExists": "Test user already exists"
   },
   "gamification": {
     "userNotFound": "User not found",
@@ -50,5 +57,31 @@
   },
   "finance": {
     "internalError": "Internal error"
+  },
+  "store_items": {
+    "dark_theme": {
+      "name": "Dark Theme Premium",
+      "description": "Exclusive dark theme for the app"
+    },
+    "sunset_theme": {
+      "name": "Sunset Theme",
+      "description": "Warm and vibrant colors"
+    },
+    "smart_notifications": {
+      "name": "Smart Notifications",
+      "description": "Personalized spending alerts"
+    },
+    "golden_avatar": {
+      "name": "Golden Avatar",
+      "description": "Exclusive gold-tier avatar"
+    },
+    "multi_wallet": {
+      "name": "Multi-Wallet Mode",
+      "description": "Manage multiple accounts"
+    },
+    "annual_report": {
+      "name": "Annual PDF Report",
+      "description": "Full export as PDF"
+    }
   }
 }

@@ -5,7 +5,7 @@ const locales = {
   'pt-BR': require('./locales/pt-BR.json')
 };
 
-const DEFAULT_LANGUAGE = 'pt-BR';
+const DEFAULT_LANGUAGE = 'en';
 
 /**
  * Get the user's language from the database
@@ -18,7 +18,7 @@ async function getUserLanguage(userId) {
   try {
     const { queryOne, getDatabase } = require('../infra/database/db');
     const db = await getDatabase();
-    const user = queryOne(db, 'SELECT language FROM users WHERE id = ?', [userId]);
+    const user = await queryOne(db, 'SELECT language FROM users WHERE id = ?', [userId]);
     return user?.language || DEFAULT_LANGUAGE;
   } catch (err) {
     console.error('Error getting user language:', err);
@@ -118,9 +118,24 @@ function createTranslator(req) {
   return async (key, params = {}) => t(key, params, null, req);
 }
 
+/**
+ * Translate the `msg` field of each express-validator error, in place.
+ * Route validators pass an i18n key as their withMessage() text (e.g.
+ * `body('email').withMessage('errors.invalidEmail')`) instead of a literal
+ * string, so the actual user-facing text respects the request's language.
+ * @param {Array} errors - result of express-validator's `errors.array()`
+ * @param {object} req - Express request object
+ * @returns {Promise<Array>} same shape, with `msg` translated
+ */
+async function translateErrors(errors, req) {
+  const translate = createTranslator(req);
+  return Promise.all(errors.map(async (e) => ({ ...e, msg: await translate(e.msg) })));
+}
+
 module.exports = {
   t,
   createTranslator,
+  translateErrors,
   getUserLanguage,
   getRequestLanguage,
   DEFAULT_LANGUAGE,

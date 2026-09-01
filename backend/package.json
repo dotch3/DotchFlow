@@ -1,27 +1,32 @@
 {
   "name": "dotchflow-backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "DotchFlow API - Gamified Personal Finance Backend",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "debug": "DEBUG=dotchflow:* nodemon src/index.js",
+    "debug:http": "DEBUG=dotchflow:http nodemon src/index.js",
+    "debug:db": "DEBUG=dotchflow:db nodemon src/index.js",
     "seed": "node seed.js",
-    "dev-seed": "rm -f data/dotchflow.db && node seed.js",
+    "dev-seed": "node reset-db.js && node seed.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "db:reset": "node reset-db.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "debug": "^4.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
     "express-validator": "^7.0.1",
-    "fs-extra": "^11.2.0",
+    "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
-    "sql.js": "^1.11.0",
-    "swagger-jsdoc": "^6.2.8",
+    "morgan": "^1.10.1",
+    "pg": "^8.13.0",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -32,7 +37,15 @@
   "jest": {
     "testEnvironment": "node",
     "coverageDirectory": "coverage",
-    "testMatch": ["**/__tests__/**/*.test.js"],
-    "collectCoverageFrom": ["src/**/*.js", "!src/**/*.test.js"]
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ]
   }
 }

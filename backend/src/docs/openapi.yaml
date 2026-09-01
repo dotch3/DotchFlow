@@ -1,6 +1,14 @@
 # DotchFlow API Specification
 # Created by: dotch3 (GitHub)
 # Version: 1.0.0
+#
+# This file is the single source of truth for the API spec. src/index.js
+# loads it directly (js-yaml) and serves it at /api-docs, only overriding
+# `servers` at runtime (actual PORT locally, + the Render URL when
+# deployed - both can't be known ahead of time in a static file). Every
+# other field here - info, paths, components, security - is exactly what
+# gets served, and is also what a direct import (Postman/Insomnia/codegen)
+# would read.
 ---
 openapi: 3.0.3
 info:
@@ -16,7 +24,19 @@ info:
     ## Response Structure
     - **Success**: `{ "data": ... }` or `{ "resource": ... }`
     - **Error**: `{ "error": "error message" }` or `{ "errors": [...] }`
-  version: 1.0.0
+
+    ## Language / Internationalization
+    Error messages, validation messages, and the store catalog are
+    translated (en / es / pt-BR). The language is picked in this order:
+    1. Logged in: uses the language saved on the account (`PUT /auth/language`).
+    2. Not logged in: uses the `Accept-Language` request header - sent
+       automatically by browsers, which is why Swagger UI's "Try it out"
+       can respond in your browser's language even though you never chose it.
+    3. Neither present: falls back to English.
+
+    For deterministic responses (scripts, automated tests), send
+    `Accept-Language: en` explicitly rather than relying on the fallback.
+  version: 1.1.0
   contact:
     name: dotch3
     url: https://github.com/dotch3
@@ -25,10 +45,13 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
+  # Overridden at runtime by src/index.js (real PORT locally, Render URL
+  # when deployed) - this static value only matters for a direct file
+  # import (Postman/Insomnia). Update it if your default PORT changes.
   - url: http://localhost:3001
     description: Local development server
-  - url: https://api.dotchflow.com
-    description: Production server (coming soon)
+  # The production (Render) URL is injected automatically at runtime
+  # from RENDER_EXTERNAL_URL - see src/index.js.
 
 tags:
   - name: Auth
@@ -50,13 +73,22 @@ tags:
 
 paths:
   # =============================================================================
-  # HEALTH CHECK
+  # HEALTH CHECK (Public - No Auth Required)
   # =============================================================================
   /health:
     get:
       summary: API health check
+      description: |
+        Returns the API status and version information.
+        This endpoint does not require authentication.
+        
+        **Use cases:**
+        - Monitor API availability
+        - Health checks for load balancers
+        - Integration testing
       tags:
         - Health
+      security: []
       responses:
         '200':
           description: API is running correctly
@@ -65,7 +97,7 @@ paths:
               example:
                 status: ok
                 app: DotchFlow API
-                version: 1.0.0
+                version: 1.1.0
 
   # =============================================================================
   # AUTH - Authentication
@@ -107,7 +139,7 @@ paths:
                   id: 1
                   email: user@example.com
                   xp_points: 0
-                  dotch_coins: 100
+                  dotch_coins: 0
                   level: 1
                   streak_count: 0
         '400':
@@ -153,7 +185,7 @@ paths:
                 password:
                   type: string
             example:
-              email: user@example.com
+              email: test@dotchflow.com
               password: myPassword123
       responses:
         '200':
@@ -165,7 +197,7 @@ paths:
                 user:
                   id: 1
                   email: user@example.com
-                  xp_points: 150
+                  xp_points: 1250
                   dotch_coins: 250
                   level: 3
                   streak_count: 5
@@ -192,6 +224,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: User data
           content:
@@ -201,7 +239,7 @@ paths:
                   id: 1
                   email: user@example.com
                   language: en
-                  xp_points: 500
+                  xp_points: 1250
                   dotch_coins: 250
                   level: 3
                   streak_count: 5
@@ -237,6 +275,12 @@ paths:
             example:
               language: en
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Language updated
           content:
@@ -246,7 +290,7 @@ paths:
                   id: 1
                   email: user@example.com
                   language: en
-                  xp_points: 500
+                  xp_points: 1250
                   dotch_coins: 250
                   level: 3
         '400':
@@ -308,6 +352,12 @@ paths:
             default: 0
           description: Pagination offset
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Transaction list
           content:
@@ -379,6 +429,12 @@ paths:
               date: 2024-01-15
               is_recurring: false
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '201':
           description: Transaction created
           content:
@@ -445,6 +501,12 @@ paths:
               amount: 120.00
               description: Grocery store (updated)
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Transaction updated
           content:
@@ -474,6 +536,12 @@ paths:
           schema:
             type: integer
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Transaction deleted
           content:
@@ -498,6 +566,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Category list
           content:
@@ -513,7 +587,7 @@ paths:
                     usage_percent: 0
                   - id: 2
                     user_id: 1
-                    name: Transportation
+                    name: Transport
                     icon: 🚗
                     monthly_limit: 500
                     monthly_spent: 320.00
@@ -548,6 +622,12 @@ paths:
               icon: 📱
               monthly_limit: 200
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '201':
           description: Category created
           content:
@@ -596,6 +676,12 @@ paths:
               icon: 💳
               monthly_limit: 250
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Category updated
           content:
@@ -626,6 +712,12 @@ paths:
           schema:
             type: integer
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Category deleted
           content:
@@ -650,6 +742,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Goal list
           content:
@@ -707,6 +805,12 @@ paths:
               target_amount: 100000
               deadline: 2026-01-01
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '201':
           description: Goal created
           content:
@@ -754,6 +858,12 @@ paths:
             example:
               amount: 500
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Deposit successful
           content:
@@ -792,6 +902,12 @@ paths:
           schema:
             type: integer
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Goal deleted
           content:
@@ -829,6 +945,12 @@ paths:
             maximum: 12
           description: "Month (default: current month)"
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Financial health analysis
           content:
@@ -862,6 +984,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Monthly forecast
           content:
@@ -887,18 +1015,24 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Check-in done
           content:
             application/json:
               example:
                 success: true
-                xp_gained: 50
-                coins_gained: 10
+                xp_gained: 175
+                coins_gained: 15
                 streak_count: 6
-                xp_points: 550
-                dotch_coins: 260
-                level: 3
+                xp_points: 675
+                dotch_coins: 265
+                level: 2
                 leveled_up: false
                 message: 6 days in a row! Bonus applied!
         '400':
@@ -917,6 +1051,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: User gamification data
           content:
@@ -924,13 +1064,13 @@ paths:
               example:
                 id: 1
                 level: 3
-                xp_points: 500
+                xp_points: 1250
                 dotch_coins: 250
                 streak_count: 5
                 last_checkin: "2024-01-15"
-                xp_progress: 0
+                xp_progress: 250
                 xp_to_next_level: 500
-                xp_percent: 0
+                xp_percent: 50
                 checked_in_today: false
 
   # =============================================================================
@@ -944,6 +1084,12 @@ paths:
       security:
         - BearerAuth: []
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Available items
           content:
@@ -952,16 +1098,21 @@ paths:
                 items:
                   - id: 1
                     item_name: Dark Theme Premium
-                    description: Elegant dark theme
+                    description: Exclusive dark theme for the app
                     icon: 🌙
                     cost_in_coins: 100
                     required_level: 1
-                    category: theme
+                    is_premium: 0
+                    translation_key: dark_theme
                     unlocked: false
                     can_afford: true
                     meets_level: true
                 dotch_coins: 250
                 level: 3
+              # item_name/description are already translated to the
+              # requester's language (Accept-Language header, or the
+              # logged-in user's saved `language` preference) - English
+              # shown here is just this example's default.
 
   /store/unlock:
     post:
@@ -985,6 +1136,12 @@ paths:
             example:
               store_item_id: 1
       responses:
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
         '200':
           description: Purchase successful
           content:
@@ -1022,39 +1179,23 @@ paths:
   # =============================================================================
   # ADMIN
   # =============================================================================
-  /admin/cleanup:
-    post:
-      summary: Trigger database cleanup
-      tags:
-        - Admin
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Cleanup completed
-          content:
-            application/json:
-              example:
-                success: true
-                message: Internal error
-                deleted:
-                  transactions: 0
-                  orphaned_categories: 0
-                  orphaned_goals: 0
-                  orphaned_unlocks: 0
-                last_cleanup: "2024-01-15T10:00:00.000Z"
-                next_cleanup_in_days: 30
-
   /admin/status:
     get:
-      summary: Get database status and cleanup info
+      summary: Get database statistics and configuration
+      description: |
+        Returns current database statistics including:
+        - Number of users, transactions, categories, goals, store items
+        - Cleanup configuration (interval, last cleanup date)
+        - Whether cleanup is needed based on schedule
+        
+        **Note:** Response language is determined by the authenticated user's language preference.
       tags:
         - Admin
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: System status
+          description: System status retrieved successfully
           content:
             application/json:
               example:
@@ -1063,13 +1204,185 @@ paths:
                   transactions: 16
                   categories: 9
                   goals: 3
+                  store_items: 6
                 config:
                   max_users: 50
                   cleanup_interval_days: 30
                 cleanup:
-                  last_cleanup: null
-                  next_cleanup: null
-                  cleanup_needed: true
+                  last_cleanup: "2024-01-15T10:00:00.000Z"
+                  next_cleanup: "2024-02-14T10:00:00.000Z"
+                  cleanup_needed: false
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
+
+  /admin/cleanup:
+    post:
+      summary: Trigger database cleanup
+      description: |
+        Removes old data and orphaned records from the database:
+        
+        **Behavior:**
+        - Deletes transactions older than `CLEANUP_INTERVAL_DAYS` (default: 30 days)
+        - Always keeps the 100 most recent transactions regardless of age
+        - Removes categories, goals, and store unlocks belonging to deleted users
+        
+        **Use cases:**
+        - Scheduled maintenance (configure via cron job or external scheduler)
+        - Manual cleanup before data export
+        - Before database migration or backup
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Cleanup completed successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Database cleanup completed successfully
+                deleted:
+                  transactions: 15
+                  orphaned_categories: 0
+                  orphaned_goals: 0
+                  orphaned_unlocks: 0
+                last_cleanup: "2024-01-15T10:00:00.000Z"
+                next_cleanup_in_days: 30
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
+        '500':
+          description: Internal server error during cleanup
+          content:
+            application/json:
+              example:
+                error: Error during cleanup
+
+  /admin/reset:
+    post:
+      summary: Reset database to initial state
+      description: |
+        Deletes all user data while preserving system configuration.
+        
+        **Behavior:**
+        - Deletes ALL users, transactions, categories, goals, and store unlocks
+        - Preserves `gamification_store` items (store catalog)
+        - Resets cleanup metadata
+        
+        **Warning:** This action is irreversible!
+        
+        **Query Parameters:**
+        - `keepUsers=true` - Only delete user data, preserve user accounts
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: keepUsers
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: "If true, preserves user accounts (only deletes their data)"
+      responses:
+        '200':
+          description: Database reset completed successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Database reset completed successfully
+                deleted:
+                  users_deleted: all
+                  users_preserved: 0
+                  transactions_deleted: true
+                  categories_deleted: true
+                  goals_deleted: true
+                  unlocks_deleted: true
+                system_data_preserved:
+                  - gamification_store
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
+        '500':
+          description: Internal server error during reset
+          content:
+            application/json:
+              example:
+                error: Error resetting database
+
+  /admin/seed:
+    post:
+      summary: Seed test data for development
+      description: |
+        Creates a test user with sample data for development and testing.
+        
+        **Creates:**
+        - Test user account (test@dotchflow.com / myPassword123)
+        - 9 default expense and income categories
+        - 16 sample transactions spanning last 30 days
+        - 3 financial goals with progress
+        - 2 unlocked store items
+        
+        **Initial user stats:**
+        - Level 3, 500 XP, 250 DotchCoins, 5-day streak
+        
+        **Note:** Fails if test user already exists. Use `/admin/reset` first if needed.
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Test data seeded successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Test data seeded successfully
+                user:
+                  email: test@dotchflow.com
+                  password: myPassword123
+                  xp_points: 1250
+                  dotch_coins: 250
+                  level: 3
+                  streak_count: 5
+                seeded:
+                  categories: 9
+                  transactions: 16
+                  goals: 3
+                  unlocks: 2
+        '401':
+          description: Authentication token missing or invalid
+          content:
+            application/json:
+              example:
+                error: Authentication token missing
+        '409':
+          description: Test user already exists
+          content:
+            application/json:
+              example:
+                error: Test user already exists
+                message: "User test@dotchflow.com already exists. Use /admin/reset first."
+        '500':
+          description: Internal server error during seeding
+          content:
+            application/json:
+              example:
+                error: Error seeding test data
 
 components:
   securitySchemes:

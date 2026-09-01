@@ -2,7 +2,10 @@
 const jwt = require('jsonwebtoken');
 const { createTranslator } = require('../../i18n');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dotchflow_secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is not set. Add it to your .env (see .env.example).');
+}
 
 async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;

@@ -42,7 +42,8 @@ describe('POST /auth/login', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     const appExpress = express();
@@ -127,7 +128,8 @@ describe('POST /auth/register', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     const appExpress = express();
@@ -225,7 +227,8 @@ describe('PUT /auth/language', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     const appExpress = express();

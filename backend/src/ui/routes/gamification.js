@@ -21,7 +21,7 @@ router.post('/checkin', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const user = queryOne(db, 'SELECT * FROM users WHERE id = ?', [req.userId]);
+    const user = await queryOne(db, 'SELECT * FROM users WHERE id = ?', [req.userId]);
     if (!user) return res.status(404).json({ error: await translate('gamification.userNotFound') });
 
     const today = new Date().toISOString().split('T')[0];
@@ -45,7 +45,7 @@ router.post('/checkin', authMiddleware, async (req, res) => {
     const newLevel = calculateLevel(newXp);
     const leveledUp = newLevel > user.level;
 
-    execute(db,
+    await execute(db,
       'UPDATE users SET xp_points=?, dotch_coins=?, level=?, streak_count=?, last_checkin=? WHERE id=?',
       [newXp, newCoins, newLevel, newStreak, today, req.userId]
     );
@@ -76,7 +76,7 @@ router.get('/status', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const user = queryOne(db, 
+    const user = await queryOne(db, 
       'SELECT id, level, xp_points, dotch_coins, streak_count, last_checkin FROM users WHERE id = ?',
       [req.userId]
     );

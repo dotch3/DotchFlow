@@ -11,7 +11,7 @@ router.get('/', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const goals = queryAll(db, 'SELECT * FROM goals WHERE user_id = ? ORDER BY deadline ASC', [req.userId]);
+    const goals = await queryAll(db, 'SELECT * FROM goals WHERE user_id = ? ORDER BY deadline ASC', [req.userId]);
 
     const enriched = goals.map(goal => {
       const remaining = goal.target_amount - goal.current_amount;
@@ -46,11 +46,11 @@ router.post('/', authMiddleware, async (req, res) => {
     const { name, target_amount, deadline } = req.body;
     if (!name || !target_amount) return res.status(400).json({ error: await translate('goals.nameAndTargetRequired') });
 
-    const { lastInsertRowId } = execute(db,
+    const { lastInsertRowId } = await execute(db,
       'INSERT INTO goals (user_id, name, target_amount, deadline) VALUES (?, ?, ?, ?)',
       [req.userId, name, target_amount, deadline || null]
     );
-    const goal = queryOne(db, 'SELECT * FROM goals WHERE id = ?', [lastInsertRowId]);
+    const goal = await queryOne(db, 'SELECT * FROM goals WHERE id = ?', [lastInsertRowId]);
     res.status(201).json({ goal });
   } catch (err) {
     res.status(500).json({ error: await translate('goals.internalError') });
@@ -62,29 +62,29 @@ router.post('/:id/deposit', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const goal = queryOne(db, 'SELECT * FROM goals WHERE id=? AND user_id=?', [req.params.id, req.userId]);
+    const goal = await queryOne(db, 'SELECT * FROM goals WHERE id=? AND user_id=?', [req.params.id, req.userId]);
     if (!goal) return res.status(404).json({ error: await translate('goals.notFound') });
 
     const { amount } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ error: await translate('goals.invalidAmount') });
 
     const newAmount = goal.current_amount + amount;
-    const status = newAmount >= goal.target_amount ? 'concluido' : 'em_andamento';
+    const status = newAmount >= goal.target_amount ? 'completed' : 'in_progress';
 
-    execute(db,
+    await execute(db,
       'UPDATE goals SET current_amount=?, status=? WHERE id=?',
       [Math.min(newAmount, goal.target_amount), status, goal.id]
     );
 
     // Award XP if completed
     let xp_gained = 0;
-    if (status === 'concluido') {
+    if (status === 'completed') {
       xp_gained = 200;
-      execute(db, 'UPDATE users SET xp_points = xp_points + 200 WHERE id = ?', [req.userId]);
+      await execute(db, 'UPDATE users SET xp_points = xp_points + 200 WHERE id = ?', [req.userId]);
     }
 
-    const updated = queryOne(db, 'SELECT * FROM goals WHERE id = ?', [goal.id]);
-    res.json({ goal: updated, xp_gained, completed: status === 'concluido' });
+    const updated = await queryOne(db, 'SELECT * FROM goals WHERE id = ?', [goal.id]);
+    res.json({ goal: updated, xp_gained, completed: status === 'completed' });
   } catch (err) {
     res.status(500).json({ error: await translate('goals.internalError') });
   }
@@ -95,9 +95,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const goal = queryOne(db, 'SELECT id FROM goals WHERE id=? AND user_id=?', [req.params.id, req.userId]);
+    const goal = await queryOne(db, 'SELECT id FROM goals WHERE id=? AND user_id=?', [req.params.id, req.userId]);
     if (!goal) return res.status(404).json({ error: await translate('goals.notFound') });
-    execute(db, 'DELETE FROM goals WHERE id = ?', [req.params.id]);
+    await execute(db, 'DELETE FROM goals WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: await translate('goals.internalError') });

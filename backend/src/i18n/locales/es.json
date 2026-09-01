@@ -10,7 +10,8 @@
     "invalidLanguage": "Idioma inválido. Valores permitidos: en, es, pt-BR",
     "authTokenMissing": "Token de autenticación ausente",
     "authTokenInvalid": "Token inválido o expirado",
-    "routeNotFound": "Ruta no encontrada"
+    "routeNotFound": "Ruta no encontrada",
+    "passwordRequired": "La contraseña es obligatoria"
   },
   "categories": {
     "notFound": "Categoría no encontrada",
@@ -39,7 +40,13 @@
   },
   "admin": {
     "cleanupError": "Error al hacer cleanup",
-    "statusError": "Error al obtener el estado"
+    "cleanupSuccess": "Limpieza de la base de datos completada con éxito",
+    "statusError": "Error al obtener el estado",
+    "resetSuccess": "Reinicio de la base de datos completado con éxito",
+    "resetError": "Error al reiniciar la base de datos",
+    "seedSuccess": "Datos de prueba creados con éxito",
+    "seedError": "Error al crear datos de prueba",
+    "seedUserExists": "Usuario de prueba ya existe"
   },
   "gamification": {
     "userNotFound": "Usuario no encontrado",
@@ -50,5 +57,31 @@
   },
   "finance": {
     "internalError": "Error interno"
+  },
+  "store_items": {
+    "dark_theme": {
+      "name": "Tema Oscuro Premium",
+      "description": "Tema oscuro exclusivo para la app"
+    },
+    "sunset_theme": {
+      "name": "Tema Atardecer",
+      "description": "Colores cálidos y vibrantes"
+    },
+    "smart_notifications": {
+      "name": "Notificaciones Inteligentes",
+      "description": "Alertas personalizadas de gastos"
+    },
+    "golden_avatar": {
+      "name": "Avatar Dorado",
+      "description": "Avatar exclusivo de nivel oro"
+    },
+    "multi_wallet": {
+      "name": "Modo Multi-Cartera",
+      "description": "Administra múltiples cuentas"
+    },
+    "annual_report": {
+      "name": "Informe Anual en PDF",
+      "description": "Exportación completa en PDF"
+    }
   }
 }

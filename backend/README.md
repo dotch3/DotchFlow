@@ -16,8 +16,9 @@ REST API for DotchFlow - a gamified personal finance app that turns financial co
 ## Tech Stack
 
 - **Node.js** + **Express**
-- **SQLite** (sql.js)
+- **PostgreSQL** (works great with [Neon](https://neon.tech)'s free tier)
 - **JWT** for authentication
+- **Swagger / OpenAPI** docs served at `/api-docs`
 
 ## Installation
 
@@ -28,14 +29,24 @@ npm install
 
 ## Environment Variables
 
-Create a `.env` file:
+Copy `.env.example` to `.env` and fill in the values:
 
 ```env
 PORT=3001
 JWT_SECRET=your_secret_key_here
 MAX_USERS=50
 CLEANUP_INTERVAL_DAYS=30
+
+# Postgres connection string. Works with Neon, Supabase, Render Postgres,
+# or any Postgres instance. Neon's free tier is a good default (see
+# "Deploy" section below for how to get one).
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
 ```
+
+You need a real Postgres database even for local development — there's no
+more local SQLite file. The easiest way to get one for free is Neon (see
+the "Deploy to Render + Neon" section below); point `DATABASE_URL` at it
+whether you're running the API locally or deployed.
 
 ## Running
 
@@ -61,21 +72,69 @@ Tests use mocked database functions - no real database required.
 
 ## Database
 
+Schema and tables are created automatically on server start (see
+`src/infra/database/db.js`) — there's nothing to migrate manually, just
+point `DATABASE_URL` at an empty Postgres database and run `npm run dev`.
+
+### Local development database
+
+Same commands, two ways to get the `DATABASE_URL`:
+
+**Option A — Neon (no local install):**
+1. Create a project + database at [neon.tech](https://neon.tech).
+2. Copy the pooled connection string into `backend/.env` as `DATABASE_URL`
+   (it already includes `?sslmode=require`).
+
+**Option B — local Postgres:**
+1. Install Postgres (e.g. `brew install postgresql@16` on macOS), or
+   reuse one you already have running for another project.
+2. Create an empty database, specifying the Postgres user explicitly —
+   `createdb` alone defaults to your OS username, not the Postgres role,
+   which fails with `password authentication failed for user "<your-os-user>"`:
+   ```bash
+   createdb -h localhost -U postgres dotchflow
+   ```
+   (replace `postgres` with whatever role you actually use — check an
+   existing local project's connection string if unsure. It'll prompt for
+   that role's password.)
+3. In `backend/.env`:
+   ```
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dotchflow
+   DATABASE_SSL=false
+   ```
+   (`DATABASE_SSL=false` because local Postgres has no SSL — Neon does,
+   and needs the default `true`.)
+
+Either way, `npm run dev-seed` (schema + sample data) and `npm run dev`
+work unchanged — they just follow whatever `DATABASE_URL` says.
+
+**Keeping dev and production separate:** if you deploy to Render (see
+below) using the same Neon database you develop against locally, the two
+share data — anything you seed/reset locally also changes what's live.
+Neon's free tier includes database branching (like a git branch, but for
+data) if you want a separate `dev` branch from `production`; for a
+practice project a single shared database is usually fine to start.
+
 ### Reset Database
 
-To reset the database (delete all data and start fresh):
-
 ```bash
-# Stop the server first
-# Then delete the database file:
-rm -f data/dotchflow.db
+npm run db:reset
 ```
 
-The database will be automatically recreated on next server start.
+Truncates every table and re-seeds the store catalog, using whatever
+`DATABASE_URL` is set to — local Postgres or Neon, same command either
+way, no `psql`/`createdb` needed. This is also what `npm run dev-seed`
+runs first, so `dev-seed` always starts from a clean slate regardless of
+what was in the database before.
+
+(There's also `POST /admin/reset` in Swagger, which does the same thing
+over HTTP against a running server, if you'd rather trigger it through the
+API than the CLI - useful for a Playwright test that needs to reset state
+between runs.)
 
 ### Seed Data
 
-The following data is automatically created on first run:
+The following store items are automatically created on first run:
 
 **Store Items:**
 | Item | Cost | Level |
@@ -91,19 +150,20 @@ User data (transactions, goals, etc.) is created when you register via the app.
 
 ### Quick Start with Seed Data
 
-For first-time setup or testing, use the combined command:
+For first-time setup or testing, use:
 
 ```bash
 npm run dev-seed
 ```
 
-This will:
-1. Delete existing database (if any)
-2. Start the server (creates fresh database with schema)
-3. Run the seed script automatically
-4. Stop the server
+This connects to whatever `DATABASE_URL` points at (local Postgres or
+Neon — see "Local development database" below), creates the schema if
+it's not there yet, and inserts the test user + sample data. Safe to
+re-run any time: it wipes the test user's own data first, so it never
+duplicates.
 
-**That's it!** You can then start the app with `npm run dev` and login with the test credentials.
+**That's it!** Start the app with `npm run dev` and log in with the test
+credentials.
 
 ---
 
@@ -117,12 +177,9 @@ If you already have a database and just want to add test data:
 npm run seed
 ```
 
-**⚠️ Error if user exists:** If `test@dotchflow.com` already exists, you'll see an error. To re-seed, first delete the database:
-
-```bash
-rm -f data/dotchflow.db
-npm run seed
-```
+**Re-running seed:** if `test@dotchflow.com` already exists, `npm run seed`
+wipes that user's data and recreates it — safe to run as many times as you
+want.
 
 ---
 
@@ -134,12 +191,38 @@ After running seed, login with:
 |-------|-------|
 | Email | `test@dotchflow.com` |
 | Password | `myPassword123` |
-| XP Points | 500 |
+| XP Points | 1250 |
 | Level | 3 |
 | Coins | 250 |
 | Streak | 5 days |
 
 **Includes:** 9 categories, 16 transactions (last 30 days), 3 goals, and 2 unlocked store items.
+
+## Language / Internationalization
+
+Error messages, validation messages, and the store catalog are translated
+into English, Spanish, and Brazilian Portuguese (`en` / `es` / `pt-BR`).
+The language used for a given response is picked in this order:
+
+1. **Logged in** — the language saved on the account, set via
+   `PUT /auth/language`.
+2. **Not logged in** — the `Accept-Language` request header. Browsers send
+   this automatically on every request, which is why testing through
+   Swagger UI (or any browser-based client) can return responses in
+   *your* browser's language even though you never explicitly chose one
+   for that request — this is standard HTTP content negotiation, not the
+   app reading anything unusual about you.
+3. **Neither present** — falls back to English.
+
+**For scripts and automated tests:** don't rely on step 2's fallback —
+it makes responses depend on whatever machine happens to run the test.
+Set `Accept-Language: en` explicitly for deterministic assertions, and
+treat language switching itself as its own test scenario (send
+`Accept-Language: pt-BR`, assert the translated string) rather than an
+incidental side effect.
+
+Translation source: `src/i18n/locales/{en,es,pt-BR}.json`. The lookup
+logic is in `src/i18n/index.js` (`getRequestLanguage`, `t`).
 
 ## Endpoints
 
@@ -563,14 +646,69 @@ curl -X POST http://localhost:3001/store/unlock \
 
 ## Interactive Documentation
 
-Full interactive API documentation is available at:
+Full interactive API documentation is available at `/api-docs`:
 
-**Swagger UI:** http://localhost:3001/api-docs
+- Local: http://localhost:3001/api-docs
+- Production (Render): `<your-render-url>/api-docs` — the production
+  server is added to the Swagger "servers" dropdown automatically at
+  runtime, no need to edit `openapi.yaml` per deploy.
 
 This provides:
 - Visual interface to test all endpoints
 - Request/response examples
 - Schema documentation
+
+Raw OpenAPI spec (for importing into Postman, Insomnia, or a Playwright/
+codegen tool): `/api-docs.json`.
+
+---
+
+## Deploy to Render + Neon
+
+This gives you a public, always-reachable URL for the API — useful as a
+target for API testing tools like Playwright, Postman, etc.
+
+### 1. Create the database (Neon)
+
+1. Sign up at [neon.tech](https://neon.tech) (free tier: data is kept
+   indefinitely, compute just suspends after 5 min idle and wakes on the
+   next query — no time limit like Railway's trial).
+2. Create a project, then a database inside it.
+3. Copy the **pooled connection string** (Dashboard → Connect → "Pooled
+   connection"). It looks like:
+   `postgresql://user:password@ep-xxxx-pooler.region.aws.neon.tech/dbname?sslmode=require`
+
+### 2. Deploy the API (Render)
+
+Option A — Blueprint (uses the `render.yaml` at the repo root):
+1. On [render.com](https://render.com), **New → Blueprint**, point it at
+   this repo.
+2. Render detects `render.yaml` and creates the `dotchflow-api` web
+   service with `rootDir: backend` already configured.
+3. Fill in the two secret env vars it asks for: `JWT_SECRET` (any long
+   random string) and `DATABASE_URL` (the Neon connection string from
+   step 1).
+
+Option B — Manual:
+1. **New → Web Service**, point it at this repo.
+2. Root Directory: `backend`
+3. Build Command: `npm install`
+4. Start Command: `npm start`
+5. Add env vars: `JWT_SECRET`, `DATABASE_URL`, `MAX_USERS=50`,
+   `CLEANUP_INTERVAL_DAYS=30`.
+
+### 3. Seed data on the deployed API
+
+Either call `POST /admin/seed` (see Swagger) against the live URL, or run
+`DATABASE_URL=<neon-url> npm run seed` locally — it connects straight to
+Neon, no need to be inside the deployed container.
+
+### What to expect
+
+Render's free tier spins the service down after 15 min without traffic
+and takes about a minute to wake back up on the next request — plan for
+that in test timeouts (e.g. a warm-up request in `beforeAll`). Data isn't
+lost between spin-downs since it now lives in Neon, not on Render's disk.
 
 ---
 

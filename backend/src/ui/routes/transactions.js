@@ -3,7 +3,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { getDatabase, queryAll, queryOne, execute } = require('../../infra/database/db');
 const { authMiddleware } = require('../middleware/auth');
-const { createTranslator } = require('../../i18n');
+const { createTranslator, translateErrors } = require('../../i18n');
 
 const router = express.Router();
 
@@ -34,10 +34,10 @@ router.get('/', authMiddleware, async (req, res) => {
     sql += ' ORDER BY t.date DESC, t.id DESC LIMIT ? OFFSET ?';
     params.push(Number(limit), Number(offset));
 
-    const transactions = queryAll(db, sql, params);
+    const transactions = await queryAll(db, sql, params);
 
     // Count totals
-    const summary = queryAll(db,
+    const summary = await queryAll(db,
       'SELECT type, SUM(amount) as total FROM transactions WHERE user_id = ? GROUP BY type',
       [req.userId]
     );
@@ -61,7 +61,7 @@ router.post('/',
   async (req, res) => {
     const translate = await createTranslator(req);
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) return res.status(400).json({ errors: await translateErrors(errors.array(), req) });
 
     try {
       const db = await getDatabase();
@@ -71,15 +71,15 @@ router.post('/',
         type = 'expense', is_quick_entry = false, is_recurring = false
       } = req.body;
 
-      const { lastInsertRowId } = execute(db,
+      const { lastInsertRowId } = await execute(db,
         'INSERT INTO transactions (user_id, amount, description, category_id, date, type, is_quick_entry, is_recurring) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [req.userId, amount, description, category_id, date, type, is_quick_entry ? 1 : 0, is_recurring ? 1 : 0]
       );
 
       // Award XP for logging
-      execute(db, 'UPDATE users SET xp_points = xp_points + ? WHERE id = ?', [XP_PER_TRANSACTION, req.userId]);
+      await execute(db, 'UPDATE users SET xp_points = xp_points + ? WHERE id = ?', [XP_PER_TRANSACTION, req.userId]);
 
-      const tx = queryOne(db,
+      const tx = await queryOne(db,
         'SELECT t.*, c.name as category_name, c.icon as category_icon FROM transactions t LEFT JOIN categories c ON t.category_id = c.id WHERE t.id = ?',
         [lastInsertRowId]
       );
@@ -97,16 +97,16 @@ router.put('/:id', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const tx = queryOne(db, 'SELECT * FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+    const tx = await queryOne(db, 'SELECT * FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
     if (!tx) return res.status(404).json({ error: await translate('transactions.notFound') });
 
     const { amount, description, category_id, date, type, is_recurring } = req.body;
-    execute(db,
+    await execute(db,
       'UPDATE transactions SET amount=COALESCE(?,amount), description=COALESCE(?,description), category_id=COALESCE(?,category_id), date=COALESCE(?,date), type=COALESCE(?,type), is_recurring=COALESCE(?,is_recurring) WHERE id = ?',
       [amount, description, category_id, date, type, is_recurring !== undefined ? (is_recurring ? 1 : 0) : null, req.params.id]
     );
 
-    const updated = queryOne(db,
+    const updated = await queryOne(db,
       'SELECT t.*, c.name as category_name, c.icon as category_icon FROM transactions t LEFT JOIN categories c ON t.category_id = c.id WHERE t.id = ?',
       [req.params.id]
     );
@@ -121,9 +121,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   const translate = await createTranslator(req);
   try {
     const db = await getDatabase();
-    const tx = queryOne(db, 'SELECT id FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+    const tx = await queryOne(db, 'SELECT id FROM transactions WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
     if (!tx) return res.status(404).json({ error: await translate('transactions.notFound') });
-    execute(db, 'DELETE FROM transactions WHERE id = ?', [req.params.id]);
+    await execute(db, 'DELETE FROM transactions WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: await translate('transactions.internalError') });

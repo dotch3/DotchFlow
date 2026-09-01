@@ -48,7 +48,8 @@ describe('GET /transactions', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     // Mock auth middleware
@@ -108,7 +109,8 @@ describe('POST /transactions', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     jest.doMock('../../ui/middleware/auth', () => ({
@@ -182,7 +184,8 @@ describe('DELETE /transactions/:id', () => {
     jest.doMock('../../infra/database/db', () => mockDb);
     jest.doMock('../../i18n', () => ({
       t: jest.fn((key) => key),
-      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key))
+      createTranslator: jest.fn().mockResolvedValue(jest.fn((key) => key)),
+      translateErrors: jest.fn((errors) => Promise.resolve(errors))
     }));
 
     jest.doMock('../../ui/middleware/auth', () => ({

@@ -1,0 +1,36 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+#
+# Deploy: on Render, "New" -> "Blueprint", point it at this repo. It will
+# create the web service below with rootDir=backend already set. You still
+# need to fill in JWT_SECRET and DATABASE_URL (from Neon) in the dashboard,
+# since secrets are never stored in this file.
+
+services:
+  - type: web
+    name: dotchflow-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: MAX_USERS
+        value: "50"
+      - key: CLEANUP_INTERVAL_DAYS
+        value: "30"
+      # No default here on purpose: localhost URLs are meaningless once this
+      # is deployed (they mean YOUR machine, not the browser hitting the
+      # API). CORS only matters if a browser-based frontend calls this API
+      # directly - it doesn't affect Playwright/Postman/curl, which don't
+      # send an Origin header. Leave unset until you deploy a frontend, then
+      # set it to that frontend's real URL (comma-separated for more than
+      # one), e.g. https://dotchflow.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
